@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import Link from 'next/link'
 
 interface ButtonProps {
   children: ReactNode;
@@ -10,11 +11,13 @@ interface ButtonProps {
 
 export const Button = ({ children, className, appName }: ButtonProps) => {
   return (
-    <button
-      className={className}
-      onClick={() => alert(`Hello from your ${appName} app!`)}
-    >
-      {children}
-    </button>
+    <Link href="/game">
+      <button
+        className={className}
+
+      >
+        {children}
+      </button>
+    </Link>
   );
 };
