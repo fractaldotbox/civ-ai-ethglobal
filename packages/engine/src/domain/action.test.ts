@@ -1,6 +1,6 @@
 import {describe, expect, test } from 'vitest'
-import { Grid } from './grid';
-import { findAdjacentEmptyTile, generateGrid } from './action';
+import { Grid, generateGrid } from './grid';
+import { applyAction, createBuildAction, findAdjacentEmptyTile } from './action';
 
 describe('Grid', () => {
 
@@ -48,6 +48,22 @@ describe('Grid', () => {
 
         const tile = findAdjacentEmptyTile(grid);
         expect(tile).toEqual(null)
+    })
+
+    test('#findAdjacentEmptyTile empty', (done:any)=>{
+ 
+        let grid = generateGrid(2, 2);
+
+
+        const tile = findAdjacentEmptyTile(grid);
+        expect(tile).toEqual({i: 0, j: 0})
+    })
+
+    test('execute build action', ()=>{
+        const grid = generateGrid(5, 5);
+        const action = createBuildAction(grid);
+
+        applyAction(grid, action)
     })
 });
 

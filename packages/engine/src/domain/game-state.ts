@@ -10,8 +10,9 @@
  * 
  */
 
-import { createMachine, assign, interpret, createActor } from 'xstate';
-import { TileBuilding } from './grid';
+import { createMachine, assign, sendParent , createActor, raise } from 'xstate';
+import { TileBuilding, generateGrid } from './grid';
+import { applyAction, createBuildAction } from './action';
 
 
 export type Card = {
@@ -40,24 +41,37 @@ export const playerMachine = createMachine({
   id: 'player',
   initial: 'waiting',
   context: {
- 
+    playerActions: [] as any[],
     hand: [] as Card[],
+
   },
   states: {
     waiting: {
+      entry: 'startPlayer',
       on: {
+        always: 'playing',
         DRAW: {
-          target: 'drawing',
+          target: 'playing',
           actions: assign({
             hand: ({context, event}) => [...context.hand, ...event.cards],
+            playerActions: ({context, event}) => {
+             console.log('playerActions', event)
+              const {grid} = event;
+              const action = createBuildAction(grid);
+
+              console.log('action', action)
+              return [action];
+            }
           }),
         },
       },
     },
-    drawing: {
+    playing: {
+      entry: 'takeAction',
       on: {
         USE: 'waiting',
         DONE: 'done',
+        // actions: ['takeAction']
       },
     },
     done: {
@@ -69,20 +83,37 @@ export const playerMachine = createMachine({
     // drawCards: assign({
     //   deck: (context) => context.deck.slice(3),
     // }),
-    takeAction: (ctx)=>{
-      console.log('ctx', ctx)
-      // deck: (context) => context.deck.slice(3),
-    }
+    startPlayer:  (ctxt)=>{
+      console.log('startPlayer')
+    },
+    takeAction: sendParent(({context})=>({
+      type: 'playerAction',
+      data: {
+        playerAction: context.playerActions[0]
+      }
+    }))
+
+    // takeAction:  sendParent(async ({context})=>{
+
+    //   const {playerActions} = context;
+    //   await raise({type: 'some', data: {
+    //     actions: 
+    //   }})
+    //   // applyAction(context.playerActions[0]);
+
+    //   // deck: (context) => context.deck.slice(3),
+    // })
   },
 });
 
-const setupPlayer = (id: string) => ({context})=>{
+const setupPlayer = (id: string) => ({context}:{context:any})=>{
   console.log('setup', id)
   context.currentState = id;
 
   // only if not exists
-  const player = createActor(playerMachine);
-  context.players.push(player);
+  // const player = createActor(playerMachine);
+  // context.players.push(player);
+  // player.start();
 }
 
 
@@ -96,6 +127,9 @@ export const gameMachine = createMachine({
     players: [
         
     ] as any[],
+
+    grid: generateGrid(3,3),
+    // TODO 
     tiles: [
         {
             i: 1,
@@ -117,8 +151,27 @@ export const gameMachine = createMachine({
     ],
     deck,
   },
+  on: {
+    playerAction: {
+      actions: assign(({context, event})=>{
+        console.log('parent action', event)
+        const { data: { playerAction } } = event;
+        context.grid = applyAction(context.grid, playerAction)!;
+      })
+    }
+  },
+  entry:[
+    assign({
+      players: ({ spawn }) => [
+        spawn(playerMachine, { id: 'player1' }),
+        spawn(playerMachine, { id: 'player2' }),
+        spawn(playerMachine, { id: 'player3' })
+      ]
+    })
+  ],
   states: {
     start: {
+    
         always: 'player1',
     },
     player1: {
@@ -151,17 +204,20 @@ export const gameMachine = createMachine({
     drawCards: assign({
       deck: ({context}) => context.deck.slice(3),
     }),
-    takeAction: assign({
-        // deck: (context) => context.deck.slice(3),
-    }),
-    sendToPlayer1: ({context}) => {
-      context.players[0].send({ type: 'DRAW', cards: context.deck.slice(0, 3) });
+    sendToPlayer1: async ({context}) => {
+      const {grid} = context;
+      console.log('sendToPlayer1')
+      await context.players[0].send({ type: 'DRAW', cards: context.deck.slice(0, 3), grid });
     },
-    sendToPlayer2: ({context}) => {
-      context.players[1].send({ type: 'DRAW', cards: context.deck.slice(0, 3) });
+    sendToPlayer2: async ({context}) => {
+      const {grid} = context;
+      console.log('sendToPlayer1')
+      await context.players[0].send({ type: 'DRAW', cards: context.deck.slice(0, 3), grid });
     },
-    sendToPlayer3: ({context}) => {
-      context.players[2].send({ type: 'DRAW', cards: context.deck.slice(0, 3) });
+    sendToPlayer3: async ({context}) => {
+      const {grid} = context;
+      console.log('sendToPlayer1')
+      await context.players[0].send({ type: 'DRAW', cards: context.deck.slice(0, 3), grid});
     },
     wrapUpTurn: ({context}) => {
       console.log('wrap up turn', context);

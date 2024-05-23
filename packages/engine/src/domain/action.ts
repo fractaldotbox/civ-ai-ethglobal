@@ -1,12 +1,22 @@
-import { Grid } from "./grid";
+import { Grid, TileBuilding } from "./grid";
+import _ from 'lodash';
 
 // prevent error 
 export const santizeAction = ()=>{
 
 }
 
+export enum ActionType {
+    Build = 'build',
+    Move = 'move'
+}
 
-export const generateGrid =  (rowSize:number, columnSize:number)=> Array(columnSize).fill(null).map(() => Array(rowSize).fill(null)) as Grid;
+export type Action = {
+    i: number,
+    j: number,
+    payload: any,
+    type: ActionType   
+}
 
 // set hard rules only, leave ai for search optimization
 export const findAdjacentEmptyTile = (grid:Grid)=>{
@@ -47,5 +57,47 @@ export const findAdjacentEmptyTile = (grid:Grid)=>{
             }
         }
     }
+
+    if(_.flatten(visited).every((isVisited:boolean) => !isVisited)) {
+        return {i:0, j:0}
+    }
+
     return null;
+}
+
+
+export const createBuildAction = (grid:Grid)=>{
+
+    const tile = findAdjacentEmptyTile(grid)
+
+    if(!tile){
+        return null;
+    }
+    const { i, j }= tile;
+    return {
+        type: ActionType.Build,
+        i,
+        j,
+        payload: {
+            owner: 'player-1',
+            building: TileBuilding.City
+        }
+    }
+}
+
+export const applyAction = (grid:Grid, action:Action)=>{
+    if(!action){
+        return  grid;
+    }
+
+    const {i, j , payload}= action
+
+    grid[i]![j] = {
+        i,
+        j,
+        ...grid[i]![j],
+        ...payload
+    }
+
+    return grid;
 }

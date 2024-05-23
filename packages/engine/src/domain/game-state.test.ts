@@ -2,6 +2,7 @@ import {describe, expect, test } from 'vitest'
 
 import { createActor, assign } from 'xstate';
 import { playerMachine, gameMachine } from './game-state';
+import { TileBuilding, TileResource } from './grid';
 
 
 describe('Game State Machine', () => {
@@ -29,14 +30,30 @@ describe('Game State Machine', () => {
       game.start();
       // expect(game.getSnapshot().context.currentTurn).toBe(0);
       
+      await game.send({ type: "DRAW" })
+      
       await game.send({ type: "NEXT" })
-      await game.send({ type: "NEXT" })
+          
+      // await game.send({ type: "DRAW" })
+      // await game.send({ type: "NEXT" })
       // seems enough to ensure all listeners run
       game.stop();
 
-      console.log('xxx')
 
-      console.log(game.getSnapshot())
+      // console.log(game.getSnapshot())
+
+      const snapshot = game.getSnapshot();
+      
+      snapshot.context.players.forEach((player:any)=>{
+        const snapshot = player.getSnapshot();  
+        console.log('snpahost', snapshot.value)
+      })
+
+      console.log(snapshot.context)
+
+      const {grid} = snapshot.context;
+      expect(grid[0]![0].building).toEqual(TileBuilding.City)
+
       // expect(game.getSnapshot().context.currentTurn).toBe(1);
 
 
