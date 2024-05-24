@@ -38,7 +38,7 @@ export const findAdjacentEmptyTile = (grid:Grid)=>{
 
                 while(queue.length > 0) {
                     const {i, j} = queue.shift()!;
-
+                    // TODO k
                     for(let k = 0; k < 4; k++) {
                         const ni = i + di[k]!;
                         const nj = j + dj[k]!;
@@ -85,7 +85,7 @@ export const createBuildAction = (grid:Grid)=>{
     }
 }
 
-export const applyAction = (grid:Grid, action:Action)=>{
+export const applyAction = (grid:Grid, action?:Action)=>{
     if(!action){
         return  grid;
     }

@@ -9,7 +9,9 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
+    "@repo/engine": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@xstate/react": "^4.1.1",
     "autoprefixer": "^10.4.19",
     "daisyui": "^4.11.1",
     "lodash": "^4.17.21",

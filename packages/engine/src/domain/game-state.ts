@@ -11,9 +11,19 @@
  */
 
 import { createMachine, assign, sendParent , createActor, raise } from 'xstate';
-import { TileBuilding, generateGrid } from './grid';
+import { GameSeed, Grid, TileBuilding, generateEmptyGrid, generateRandomGrid } from './grid';
 import { applyAction, createBuildAction } from './action';
 
+
+export type GameState = {
+  currentTurnMetadata: {
+    turn: number,
+    playerId: string
+  };
+  players: any[];
+  grid: Grid;
+  deck: number[];
+}
 
 export type Card = {
     name: 'a'
@@ -108,7 +118,7 @@ export const playerMachine = createMachine({
 
 const setupPlayer = (id: string) => ({context}:{context:any})=>{
   console.log('setup', id)
-  context.currentState = id;
+  context.currentTurnMetadata.playerId = id;
 
   // only if not exists
   // const player = createActor(playerMachine);
@@ -118,17 +128,19 @@ const setupPlayer = (id: string) => ({context}:{context:any})=>{
 
 
 // Define the state machine for the game
-export const gameMachine = createMachine({
+export const createGameMachine = (gameSeed: GameSeed) => createMachine({
   id: 'game',
   initial: 'start',
   context: {
-    currentTurn:0,
-    currentState: '',
+    currentTurnMetadata: {
+      turn: 0,
+      playerId: ''
+    },
     players: [
         
     ] as any[],
 
-    grid: generateGrid(3,3),
+    grid: generateRandomGrid(gameSeed),
     // TODO 
     tiles: [
         {
@@ -150,10 +162,10 @@ export const gameMachine = createMachine({
         }
     ],
     deck,
-  },
+  } as GameState,
   on: {
     playerAction: {
-      actions: assign(({context, event})=>{
+      actions: assign(({context, event}):any=>{
         console.log('parent action', event)
         const { data: { playerAction } } = event;
         context.grid = applyAction(context.grid, playerAction)!;
@@ -221,7 +233,7 @@ export const gameMachine = createMachine({
     },
     wrapUpTurn: ({context}) => {
       console.log('wrap up turn', context);
-      context.currentTurn = context.currentTurn + 1;
+      context.currentTurnMetadata.turn = context.currentTurnMetadata.turn + 1;
 
     }
   },

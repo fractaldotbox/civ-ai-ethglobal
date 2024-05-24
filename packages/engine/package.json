@@ -2,12 +2,27 @@
   "name": "@repo/engine",
   "version": "0.0.0",
   "private": true,
+  "main": "index.js",
   "files": [
     "library.js",
     "next.js",
     "react-internal.js"
   ],
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./index.ts",
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/cjs/index.js"
+    }
+  },
+  
+  "dependencies": {
+    "xstate": "^5.13.0",
+    "lodash": "^4.17.21"
+  },
   "devDependencies": {
+    "@types/lodash":"4.17.4",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "@vercel/style-guide": "^5.2.0",
@@ -15,14 +30,15 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-turbo": "^1.12.4",
     "eslint-plugin-only-warn": "^1.1.0",
-    "lodash": "^4.17.21",
     "typescript": "^5.3.3",
     "vitest": "^1.6.0"
   },
+
   "scripts": {
-    "test": "vitest"
-  },
-  "dependencies": {
-    "xstate": "^5.13.0"
+    "build": "rm -rf dist && tsc",
+
+    
+    "test": "vitest",
+    "dev": "rm -rf dist && tsc --watch"
   }
 }

@@ -1,7 +1,7 @@
 import {describe, expect, test } from 'vitest'
 
 import { createActor, assign } from 'xstate';
-import { playerMachine, gameMachine } from './game-state';
+import { playerMachine, createGameMachine } from './game-state';
 import { TileBuilding, TileResource } from './grid';
 
 
@@ -23,7 +23,22 @@ describe('Game State Machine', () => {
     test('should go through a turn ', async (done:any) => {
 
 
-      const game = createActor(gameMachine);
+      const gameSeed = {
+        rowSize: 10,
+        columnSize: 10,
+        playerCount: 2,
+        tileResourceMax: 3,
+        tileByType: {
+            [TileResource.Food]: {
+                total: 100
+            },
+            [TileResource.Science]: {
+                total: 100
+            }
+        }
+      }
+
+      const game = createActor(createGameMachine(gameSeed));
 
 
 
@@ -52,7 +67,10 @@ describe('Game State Machine', () => {
       console.log(snapshot.context)
 
       const {grid} = snapshot.context;
-      expect(grid[0]![0].building).toEqual(TileBuilding.City)
+
+      
+      expect(grid[0]![0]!.building).toEqual(TileBuilding.City)
+      expect(grid[0]![0]!.owner).toEqual('player-1')
 
       // expect(game.getSnapshot().context.currentTurn).toBe(1);
 

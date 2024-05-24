@@ -1,12 +1,12 @@
 import {describe, expect, test } from 'vitest'
-import { Grid, generateGrid } from './grid';
+import { Grid, TileBuilding, generateEmptyGrid } from './grid';
 import { applyAction, createBuildAction, findAdjacentEmptyTile } from './action';
 
 describe('Grid', () => {
 
     test('#findAdjacentEmptyTile middle', (done:any)=>{
 
-        let grid = generateGrid(5, 5);
+        let grid = generateEmptyGrid(5, 5);
 
         grid[1]![1] = {
             i: 1,
@@ -23,7 +23,7 @@ describe('Grid', () => {
     })
     test('#findAdjacentEmptyTile edge', (done:any)=>{
  
-        let grid = generateGrid(5, 5);
+        let grid = generateEmptyGrid(5, 5);
 
         grid[4]![4] = {
             i: 4,
@@ -35,7 +35,7 @@ describe('Grid', () => {
     })
     test('#findAdjacentEmptyTile full', (done:any)=>{
  
-        let grid = generateGrid(2, 2);
+        let grid = generateEmptyGrid(2, 2);
 
         [0,1].forEach(i=>{
             [0,1].forEach(j=>{
@@ -52,7 +52,7 @@ describe('Grid', () => {
 
     test('#findAdjacentEmptyTile empty', (done:any)=>{
  
-        let grid = generateGrid(2, 2);
+        let grid = generateEmptyGrid(2, 2);
 
 
         const tile = findAdjacentEmptyTile(grid);
@@ -60,10 +60,11 @@ describe('Grid', () => {
     })
 
     test('execute build action', ()=>{
-        const grid = generateGrid(5, 5);
+        const grid = generateEmptyGrid(5, 5);
         const action = createBuildAction(grid);
 
-        applyAction(grid, action)
+        const gridResult = applyAction(grid, action);
+        expect(gridResult[0]![0]!.building).toEqual(TileBuilding.City)
     })
 });
 
