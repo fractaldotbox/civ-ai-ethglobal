@@ -1,5 +1,5 @@
-import { GameState, TileResource, createGameMachine, gameMachine, generateRandomGrid } from '@repo/engine';
-import React, { createContext, useState } from 'react';
+import { GameState, TileResource, createGameMachine, generateRandomGrid } from '@repo/engine';
+import React, { createContext, useEffect, useState } from 'react';
 import { createActor } from 'xstate';
 
 import { useActor, useMachine } from '@xstate/react';
@@ -21,7 +21,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     const gameSeed = {
         rowSize: 10,
         columnSize: 10,
-        playerCount: 2,
+        playerCount: 3,
         tileResourceMax: 3,
         tileByType: {
             [TileResource.Food]: {
@@ -37,26 +37,22 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     const gameMachine = React.useMemo(() => createGameMachine(gameSeed), []);
     const [snapshot, send, actorRef] = useMachine(gameMachine);
 
+    console.log('machine snapshot updated', snapshot);
 
+    // TODO lifeclce update only after initialized
     const [gameState, setGameState] = useState<GameState>({
-        grid: snapshot.context.grid,
-        currentTurnMetadata: {
-            turn: 0,
-            playerId: ''
-        },
-        players: [],
-        deck: []
+        ...snapshot.context
     });
+
+    useEffect(() => {
+        console.log('refresh game state')
+        setGameState({ ...snapshot.context });
+    }, [snapshot])
 
 
     // expect(game.getSnapshot().context.currentTurn).toBe(0);
 
-    // await game.send({ type: "DRAW" })
 
-
-
-    // await game.send({ type: "DRAW" })
-    // await game.send({ type: "NEXT" })
     // seems enough to ensure all listeners run
     // game.stop();
 

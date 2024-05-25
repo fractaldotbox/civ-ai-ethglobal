@@ -63,3 +63,9 @@ a {
   background-color: transparent !important;
   padding:0 !important;
 }
+
+.react-flow__background {
+  /* 950 #172554 */
+  /* 800 #1e40af */
+  background-color: #172554 !important;
+}
