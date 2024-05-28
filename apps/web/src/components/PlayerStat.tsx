@@ -54,7 +54,7 @@ export default (params: {
             </span>
             Player {playerIndex}
             <ResourceScore
-                resource={TileResource.Food}
+                resource={TileResource.Compute}
                 playerKey={playerKey}
                 {...params}
 

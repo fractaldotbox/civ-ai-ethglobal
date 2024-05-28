@@ -20,6 +20,7 @@ const PlayerBar = () => {
             {
                 playerKeys.map((player, i) => (
                     <PlayerStat
+                        key={"player-" + i}
                         player={{
                             playerIndex: i + 1,
                         }}

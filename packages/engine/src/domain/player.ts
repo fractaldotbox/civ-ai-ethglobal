@@ -1,6 +1,11 @@
 export const asPlayerKey = (id: number) => {
   return ['player', id].join('-');
 };
+
+export const asPlayerIndex = (playerKey: string) => {
+  return parseInt(playerKey.split('-')[1], 10);
+};
+
 // tailwindcss class name in safelist
 export const COLOR_CLASS_BY_PLAYER = {
   ...(Object.fromEntries(

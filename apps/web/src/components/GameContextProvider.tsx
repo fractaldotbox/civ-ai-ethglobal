@@ -24,7 +24,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         playerCount: 3,
         tileResourceMax: 3,
         tileByType: {
-            [TileResource.Food]: {
+            [TileResource.Compute]: {
                 total: 100
             },
             [TileResource.Science]: {

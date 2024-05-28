@@ -1,18 +1,19 @@
 import { Grid, Tile, TileBuilding } from './grid';
 import _ from 'lodash';
 import { asPlayerKey } from './player';
+import { findNPrimes } from './prime';
 
 // prevent error
 export const santizeAction = () => {};
 
 export enum ActionType {
   Build = 'build',
-  Move = 'move',
+  Research = 'research',
 }
 
 export type Action = {
-  i: number;
-  j: number;
+  i?: number;
+  j?: number;
   payload: any;
   type: ActionType;
 };
@@ -82,6 +83,7 @@ export const findAdjacentTile = (
   }
 
   if (_.flatten(visited).every((isVisited: boolean) => !isVisited)) {
+    console.log('visited all');
     return { i: 0, j: 0 };
   }
 
@@ -107,19 +109,85 @@ export const createBuildAction = (grid: Grid, playerKey: string): Action => {
   };
 };
 
-export const applyAction = (grid: Grid, action?: Action) => {
-  if (!action) {
+// consume more = make more sense?
+// smaller job = faster iterations
+
+// interval = 1e2
+export const createResearchAction = (
+  resourceCount: number,
+  playerKey: string,
+): Action => {
+  return {
+    type: ActionType.Research,
+    payload: {
+      playerKey,
+      n: resourceCount * 1e2,
+    },
+  };
+};
+
+export const actionStrategySync = {
+  [ActionType.Build]: (grid: Grid, action?: Action) => {
+    const { i, j, payload } = action;
+    console.log('apply action', i, j);
+    grid[i]![j] = {
+      i,
+      j,
+      ...grid[i]![j],
+      ...payload,
+    };
     return grid;
+  },
+};
+
+export const actionStrategyAsync = {
+  [ActionType.Research]: async (grid: Grid, action?: Action) => {
+    if (!action) {
+      return;
+    }
+
+    const { playerKey, n } = action.payload;
+
+    console.log('playerKey, research', n);
+
+    // TODO iterate start
+    const primes = await findNPrimes(n, n % 100);
+
+    console.log('playerKey, research done', primes);
+
+    return {
+      primes,
+    };
+    // do not await
+  },
+};
+
+export const applySyncAction = (grid: Grid, action?: Action) => {
+  if (!action) {
+    return { grid };
   }
 
-  const { i, j, payload } = action;
-  console.log('apply action', i, j);
-  grid[i]![j] = {
-    i,
-    j,
-    ...grid[i]![j],
-    ...payload,
-  };
+  const { type } = action;
 
-  return grid;
+  return {
+    grid: actionStrategySync[type as ActionType.Build](grid, action),
+  };
+};
+
+// Do not change the grid as eventually consistency
+export const applyAsyncAction = async (grid: Grid, action?: Action) => {
+  if (!action) {
+    return { grid };
+  }
+
+  const { type } = action;
+
+  const results = await actionStrategyAsync[type as ActionType.Research](
+    grid,
+    action,
+  );
+
+  return {
+    results,
+  };
 };

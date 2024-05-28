@@ -22,12 +22,12 @@ import {
 import { mapSnapshotAsNodes } from '../../../../vm/grid';
 import { useGameContext } from '../../../components/GameContextProvider';
 import { COLOR_CLASS_BY_PLAYER, asPlayerKey } from '@repo/engine';
+import Chart from '../../../components/Chart';
 
 const GRID_TILE_WIDTH = 100;
 const GRID_TILE_WIDTH_PX = GRID_TILE_WIDTH + 'px';
 
 const GRID_SIZE = 10;
-
 
 
 export const asCardLabel = () => '🃏'
@@ -151,8 +151,11 @@ export default function GamePage(): JSX.Element {
         height: '80vh',
     };
 
+    // TODO modal button for chart
+
     return (
         <div style={styles}>
+            {/* <Chart /> */}
             <ReactFlow
                 nodes={nodes}
                 edges={[]}
@@ -169,6 +172,7 @@ export default function GamePage(): JSX.Element {
                 minZoom={0}
                 attributionPosition="bottom-left"
             >
+                {/* <div className="react-flow__panel react-flow__minimap top right w-60 h-60"></div> */}
                 <MiniMap />
                 <Controls />
 

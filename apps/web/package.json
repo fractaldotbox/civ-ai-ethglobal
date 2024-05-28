@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test": "vitest",
     "start": "next start",
     "lint": "eslint . --max-warnings 0"
   },
@@ -14,10 +15,14 @@
     "@xstate/react": "^4.1.1",
     "autoprefixer": "^10.4.19",
     "daisyui": "^4.11.1",
+    "execa": "9.1.0",
+    "got": "^14.3.0",
     "lodash": "^4.17.21",
     "next": "^14.1.1",
+    "plotly.js": "^2.32.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-plotly.js": "^2.6.0",
     "reactflow": "^11.11.3",
     "tailwindcss": "^3.4.3",
     "xstate": "^5.13.0"
@@ -30,7 +35,9 @@
     "@types/node": "^20.11.24",
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
+    "@types/react-plotly.js": "^2.6.3",
     "eslint": "^8.57.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.6.0"
   }
 }

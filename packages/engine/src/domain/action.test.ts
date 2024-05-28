@@ -1,10 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { Grid, Tile, TileBuilding, generateEmptyGrid } from './grid';
-import {
-  applyAction,
-  createBuildAction,
-  findAdjacentEmptyTile,
-} from './action';
+import { createBuildAction, findAdjacentEmptyTile } from './action';
+import { asPlayerIndex, asPlayerKey } from './player';
 
 describe('Grid', () => {
   const defaultTile = {
@@ -13,7 +10,7 @@ describe('Grid', () => {
 
   const predicateStart = (tile: Tile) => tile.owner === 'player-1';
 
-  test.only('#findAdjacentEmptyTile middle', (done: any) => {
+  test('#findAdjacentEmptyTile middle', (done: any) => {
     let grid = generateEmptyGrid(5, 5);
 
     grid[1]![1] = {
@@ -52,6 +49,7 @@ describe('Grid', () => {
       [0, 1].forEach((j) => {
         grid[i]![j] = {
           ...defaultTile,
+          owner: 'player-1',
           i,
           j,
         };
@@ -69,7 +67,7 @@ describe('Grid', () => {
     expect(tile).toEqual({ i: 0, j: 0 });
   });
 
-  test('execute build action', () => {
+  test('execute build action', async () => {
     const grid = generateEmptyGrid(5, 5);
     grid[0]![3] = {
       ...defaultTile,
@@ -77,9 +75,9 @@ describe('Grid', () => {
       j: 0,
       owner: 'player-1',
     };
-    const action = createBuildAction(grid, 1);
+    const action = createBuildAction(grid, asPlayerKey(1));
 
-    const gridResult = applyAction(grid, action);
-    expect(gridResult[0]![0]!.building).toEqual(TileBuilding.City);
+    const { grid: gridResult } = await applyAction(grid, action);
+    expect({ gridResult }[0]![4]!.building).toEqual(TileBuilding.City);
   });
 });

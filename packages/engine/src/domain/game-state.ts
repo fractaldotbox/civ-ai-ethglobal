@@ -19,8 +19,15 @@ import {
   generateEmptyGrid,
   generateRandomGrid,
 } from './grid';
-import { Action, applyAction, createBuildAction } from './action';
-import { asPlayerKey } from './player';
+import {
+  Action,
+  ActionType,
+  applyAsyncAction,
+  applySyncAction,
+  createBuildAction,
+  createResearchAction,
+} from './action';
+import { asPlayerIndex, asPlayerKey } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
 
@@ -55,6 +62,7 @@ export const playerMachine = createMachine(
     id: 'player',
     initial: 'waiting',
     context: {
+      currentTurnMetadata: {} as any,
       playerKey: '',
       playerActions: [] as any[],
       hand: [] as Card[],
@@ -70,18 +78,39 @@ export const playerMachine = createMachine(
               playerActions: ({ context, event, self }) => {
                 console.log('playerActions', event);
                 const { id: playerKey } = self;
-                const { grid } = event;
-                const action = createBuildAction(grid, playerKey);
+                const { grid, currentTurnMetadata } = event;
 
-                console.log(playerKey + ' action', action);
-                return [action];
+                const playerId = playerKey.split('-')[1];
+
+                context.currentTurnMetadata = currentTurnMetadata;
+                // update turn
+
+                const { turn } = context.currentTurnMetadata;
+
+                console.log('turn', turn);
+
+                const playerIndex = asPlayerIndex(playerKey);
+
+                // TODO math random offset for balance
+
+                const isResearchTurn = ((turn % 3) as number) === playerIndex;
+
+                const buildAction = createBuildAction(grid, playerKey);
+                console.log('research-turn', playerKey, playerIndex, turn % 3);
+                if (isResearchTurn) {
+                  const researchAction = createResearchAction(turn, playerKey);
+                  return [buildAction, researchAction];
+                }
+                return [buildAction];
+
+                console.log(playerKey + ' action');
               },
             }),
           },
         },
       },
       playing: {
-        entry: 'takeAction',
+        entry: ['takeAction', 'takeResearchAction'],
         always: 'waiting',
       },
       done: {
@@ -100,6 +129,24 @@ export const playerMachine = createMachine(
           playerAction: context.playerActions[0],
         },
       })),
+      takeResearchAction: sendParent(({ context }) => {
+        console.log('research', context.currentTurnMetadata);
+
+        const playerAction = context.playerActions[1];
+        if (playerAction) {
+          return {
+            type: 'playerAction',
+            data: {
+              playerAction,
+            },
+          };
+        }
+
+        return {
+          type: 'empty',
+          data: {},
+        };
+      }),
     },
   },
 );
@@ -125,6 +172,7 @@ const createSendToPlayer =
       type: 'DRAW',
       cards: context.deck.slice(0, 3),
       grid,
+      currentTurnMetadata: context.currentTurnMetadata,
     });
   };
 
@@ -163,13 +211,30 @@ export const createGameMachine = (gameSeed: GameSeed) =>
           }),
         },
         playerAction: {
-          actions: assign(({ context, event, self }): any => {
-            console.log('player trigger parent action', event);
+          actions: assign(async ({ context, event, self }): any => {
+            console.log('player trigger parent action', JSON.stringify(event));
             const {
               data: { playerAction },
             } = event;
             self.send({ type: 'emitLog', action: playerAction });
-            context.grid = applyAction(context.grid, playerAction)!;
+
+            if (playerAction.type === ActionType.Build) {
+              const { grid } = applySyncAction(context.grid, playerAction)!;
+              context.grid = grid;
+            }
+
+            if (playerAction.type === ActionType.Research) {
+              const { results } = await applyAsyncAction(
+                context.grid,
+                playerAction,
+              )!;
+
+              console.log('Research completed', results);
+              // add to chart
+              // self.send({ type: 'emitLog', action: playerAction });
+            }
+
+            //  emit
           }),
         },
       },

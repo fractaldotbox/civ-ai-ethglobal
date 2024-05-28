@@ -11,7 +11,7 @@ export type Tile = {
 export type Grid = Tile[][];
 
 export enum TileResource {
-  Food = 'food',
+  Compute = 'compute',
   Science = 'science',
 }
 
@@ -22,7 +22,6 @@ export enum TileBuilding {
   SolarPanel = 'solar-panel',
 }
 
-//
 export const LABEL_BY_TILE_BUILDING = {
   // 🌆
   [TileBuilding.City]: '🏢',
@@ -35,7 +34,7 @@ export const LABEL_BY_TILE_BUILDING = {
 };
 
 export const LABEL_BY_TILE_RESOURCE = {
-  [TileResource.Food]: '🌽',
+  [TileResource.Compute]: '⚡',
   [TileResource.Science]: '🧪',
 };
 
@@ -177,8 +176,6 @@ export const generateRandomGrid = (gameSeed: GameSeed) => {
     tileByType,
     tileResourceMax,
   );
-
-  console.log(resourceGrid);
 
   // const playerGrid = genearteGridWithNonOverlappingTiles(rowSize, columnSize, playerTiles)
   for (let i = 0; i < rowSize; i++) {

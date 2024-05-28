@@ -16,13 +16,13 @@
       "default": "./dist/cjs/index.js"
     }
   },
-  
   "dependencies": {
-    "xstate": "^5.13.0",
-    "lodash": "^4.17.21"
+    "got": "^14.3.0",
+    "lodash": "^4.17.21",
+    "xstate": "^5.13.0"
   },
   "devDependencies": {
-    "@types/lodash":"4.17.4",
+    "@types/lodash": "4.17.4",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "@vercel/style-guide": "^5.2.0",
@@ -33,11 +33,8 @@
     "typescript": "^5.3.3",
     "vitest": "^1.6.0"
   },
-
   "scripts": {
     "build": "rm -rf dist && tsc",
-
-    
     "test": "vitest",
     "dev": "rm -rf dist && tsc --watch"
   }

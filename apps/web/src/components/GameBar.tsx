@@ -18,9 +18,9 @@ export default () => {
         <div className="h-12" >
             {/* <div>Next</div> */}
             <div className="flex flex-row justify-between">
-                <div className="col">
-                    Events
-                    {gameState?.logs?.length}
+                <div className="col h-32">
+                    Current Turn {gameState?.currentTurnMetadata.turn}
+                    {/* {gameState?.logs?.length} */}
                     {gameState?.logs.map((log, index) => { return <div key={index}>{mapLogAsMessage(log)}</div> })}
                 </div>
 
