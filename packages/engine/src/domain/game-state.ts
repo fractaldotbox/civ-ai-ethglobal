@@ -10,7 +10,7 @@
  *
  */
 
-import { createMachine, assign, sendParent } from 'xstate';
+import { createMachine, assign, sendParent, EventObject } from 'xstate';
 import {
   GameSeed,
   Grid,
@@ -37,11 +37,12 @@ export type GameState = {
     turn: number;
     playerKey: string;
   };
-  scoreByPlayerKey: Record<string, { [k in TileResource]: number }>;
+  scoreByResourceByPlayerKey: Record<string, { [k in TileResource]: number }>;
   scoreCurrentTurnByPlayerKey: Record<string, { [k in TileResource]: number }>;
   players: any[];
   grid: Grid;
   deck: number[];
+  primesByPlayerKey: Record<string, number[]>;
 };
 
 export type Card = {
@@ -64,7 +65,7 @@ export const playerMachine = createMachine(
     context: {
       currentTurnMetadata: {} as any,
       playerKey: '',
-      playerActions: [] as any[],
+      playerActions: [] as Action[],
       hand: [] as Card[],
     },
     states: {
@@ -93,7 +94,8 @@ export const playerMachine = createMachine(
 
                 // TODO math random offset for balance
 
-                const isResearchTurn = ((turn % 3) as number) === playerIndex;
+                const isResearchTurn =
+                  ((turn % 3) as number) + 1 === playerIndex;
 
                 const buildAction = createBuildAction(grid, playerKey);
                 console.log('research-turn', playerKey, playerIndex, turn % 3);
@@ -130,8 +132,7 @@ export const playerMachine = createMachine(
         },
       })),
       takeResearchAction: sendParent(({ context }) => {
-        console.log('research', context.currentTurnMetadata);
-
+        console.log('takeResearchAction', context);
         const playerAction = context.playerActions[1];
         if (playerAction) {
           return {
@@ -176,10 +177,13 @@ const createSendToPlayer =
     });
   };
 
-const createByPlayerKey = (playerCount: number) => {
+const createByPlayerKey = (
+  playerCount: number,
+  defaultValueFactory = () => ({}),
+) => {
   return Object.fromEntries(
     Array.from({ length: playerCount }, (_, i) => {
-      return [asPlayerKey(i + 1), {}];
+      return [asPlayerKey(i + 1), defaultValueFactory()];
     }),
   );
 };
@@ -196,9 +200,22 @@ export const createGameMachine = (gameSeed: GameSeed) =>
           turn: 0,
           playerKey: '',
         },
+        primesByPlayerKey: createByPlayerKey(gameSeed.playerCount, () => []),
         players: [] as any[],
-        scoreByPlayerKey: createByPlayerKey(gameSeed.playerCount),
-        scoreCurrentTurnByPlayerKey: createByPlayerKey(gameSeed.playerCount),
+        scoreByResourceByPlayerKey: createByPlayerKey(
+          gameSeed.playerCount,
+          () => ({
+            [TileResource.Compute]: 0,
+            [TileResource.Science]: 0,
+          }),
+        ),
+        scoreCurrentTurnByPlayerKey: createByPlayerKey(
+          gameSeed.playerCount,
+          () => ({
+            [TileResource.Compute]: 0,
+            [TileResource.Science]: 0,
+          }),
+        ),
         grid: generateRandomGrid(gameSeed),
         deck,
       } as GameState,
@@ -210,6 +227,20 @@ export const createGameMachine = (gameSeed: GameSeed) =>
             });
           }),
         },
+        researchUpdated: {
+          actions: assign(({ context, event }): any => {
+            const { playerKey, results } = event;
+
+            console.log('research results', playerKey, results);
+            // union
+            results.forEach((result: any) => {
+              context.primesByPlayerKey[playerKey] =
+                context.primesByPlayerKey[playerKey] || [];
+              context.primesByPlayerKey[playerKey].push(result);
+            });
+          }),
+        },
+
         playerAction: {
           actions: assign(async ({ context, event, self }): any => {
             console.log('player trigger parent action', JSON.stringify(event));
@@ -218,20 +249,49 @@ export const createGameMachine = (gameSeed: GameSeed) =>
             } = event;
             self.send({ type: 'emitLog', action: playerAction });
 
+            const { type, payload } = playerAction;
+
             if (playerAction.type === ActionType.Build) {
               const { grid } = applySyncAction(context.grid, playerAction)!;
               context.grid = grid;
             }
 
             if (playerAction.type === ActionType.Research) {
-              const { results } = await applyAsyncAction(
-                context.grid,
-                playerAction,
-              )!;
+              // const { results } = await applyAsyncAction(
+              //   context.grid,
+              //   playerAction,
+              // )!;
 
-              console.log('Research completed', results);
+              const { scoreByResourceByPlayerKey } = context;
+
+              const { n, playerKey } = payload;
+
+              const score = scoreByResourceByPlayerKey[playerKey];
+
+              const computeCurrent =
+                scoreByResourceByPlayerKey?.[playerKey]?.[TileResource.Compute];
+
+              if (scoreByResourceByPlayerKey[playerKey]) {
+                scoreByResourceByPlayerKey[playerKey][TileResource.Compute] = 1;
+              }
+
+              const cut = n / 100;
+
+              // fixture
+              const results = {
+                'player-1': [2, 3, 5],
+                'player-2': [7, 11, 13],
+                'player-3': [19, 23, 29, 31],
+              }[playerKey];
+
+              console.log('Research completed', playerKey, results);
+
               // add to chart
-              // self.send({ type: 'emitLog', action: playerAction });
+              self.send({
+                type: 'researchUpdated',
+                playerKey,
+                results,
+              } as EventObject);
             }
 
             //  emit
@@ -287,10 +347,10 @@ export const createGameMachine = (gameSeed: GameSeed) =>
           console.log('wrap up turn', context);
 
           const { grid } = context;
-          const { scoreByPlayerKey, scoreCurrentTurnByPlayerKey } =
-            calculateScoreByPlayer(grid, context.scoreByPlayerKey);
+          const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } =
+            calculateScoreByPlayer(grid, context.scoreByResourceByPlayerKey);
 
-          context.scoreByPlayerKey = scoreByPlayerKey;
+          context.scoreByResourceByPlayerKey = scoreByResourceByPlayerKey;
           context.scoreCurrentTurnByPlayerKey = scoreCurrentTurnByPlayerKey;
           context.currentTurnMetadata.turn =
             context.currentTurnMetadata.turn + 1;

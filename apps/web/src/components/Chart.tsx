@@ -1,12 +1,70 @@
 'use client'
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import dynamic from "next/dynamic";
+import { useGameContext } from './GameContextProvider';
+import { COLOR_BY_PLAYER, COLOR_CLASS_BY_PLAYER } from '@repo/engine';
 
 // https://github.com/plotly/react-plotly.js/issues/272
 const Plot = dynamic(() => import("react-plotly.js"), { ssr: false, })
 
+export type ChartDataWrapper = {
+    data: any[]
+};
+
+// Create the context
+export const ChartDataContext = createContext<ChartDataWrapper | null>(null);
+
+
+const mapPrimeAsData = (primes: number[], playerKey: string, color: string) => {
+    console.log('prime data', primes, playerKey, color)
+    return {
+        type: "scatterpolargl",
+        r: primes,
+        theta: primes.map(t => t * 2 * Math.PI),
+        mode: "markers",
+        name: playerKey,
+        marker: {
+            color,
+            size: 15,
+            line: {
+                color: "white"
+            },
+            opacity: 0.7
+        },
+
+        cliponaxis: false
+    };
+}
+
+export const ChartDataContextProvider = ({ children }: { children: React.ReactNode }) => {
+    const { gameState, send } = useGameContext();
+    // const { data } = React.useContext(ChartDataContext);
+
+    if (!gameState) {
+        return
+    }
+
+    const { primesByPlayerKey } = gameState;
+
+    const data =
+        Object.keys(primesByPlayerKey).map((playerKey) => {
+            return mapPrimeAsData(primesByPlayerKey[playerKey] || [], playerKey, COLOR_BY_PLAYER[playerKey]!)
+        })
+
+
+    return (
+        <ChartDataContext.Provider value={{
+            data
+        }}>
+            {children}
+        </ChartDataContext.Provider>
+    );
+
+}
 
 export default () => {
+
+    const { data } = useContext(ChartDataContext) || {};
 
     // const { data, layout } = createChartData();
 
@@ -19,26 +77,6 @@ export default () => {
         r.push(Math.sin(2 * theta[i]!)); // Example function
     }
 
-    const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
-
-    const data = [
-        {
-            type: "scatterpolargl",
-            r: primes,
-            theta: primes.map(t => t * 2 * Math.PI),
-            mode: "markers",
-            name: "Trial 1",
-            marker: {
-                color: "rgb(27,158,119)",
-                size: 15,
-                line: {
-                    color: "white"
-                },
-                opacity: 0.7
-            },
-            cliponaxis: false
-        },
-    ]
 
     return (
         <div>

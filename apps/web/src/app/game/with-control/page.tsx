@@ -22,13 +22,31 @@ import {
 import { mapSnapshotAsNodes } from '../../../../vm/grid';
 import { useGameContext } from '../../../components/GameContextProvider';
 import { COLOR_CLASS_BY_PLAYER, asPlayerKey } from '@repo/engine';
-import Chart from '../../../components/Chart';
+import Chart, { ChartDataContextProvider } from '../../../components/Chart';
 
 const GRID_TILE_WIDTH = 100;
 const GRID_TILE_WIDTH_PX = GRID_TILE_WIDTH + 'px';
 
 const GRID_SIZE = 10;
 
+export const ChartModal = () => {
+    return (
+        <ChartDataContextProvider>
+
+            <dialog id="my_modal_1" className="modal">
+                <div className="modal-box w-11/12 max-w-5xl">
+                    <h3 className="font-bold text-lg">Research Progress</h3>
+                    <Chart />
+                    <div className="modal-action">
+                        <form method="dialog">
+                            <button className="btn">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
+        </ChartDataContextProvider>
+    )
+}
 
 export const asCardLabel = () => '🃏'
 
@@ -59,8 +77,8 @@ const mapResourceAsLabel = (tile: Tile) => {
                         <div className="flex flex-col">
                             {Array(count)
                                 .fill(null)
-                                .map(() => {
-                                    return <div>{LABEL_BY_TILE_RESOURCE[resource]}</div>;
+                                .map((v, i) => {
+                                    return <div key={"tile-" + i}>{LABEL_BY_TILE_RESOURCE[resource]}</div>;
                                 })}
                         </div>
                     );
@@ -156,6 +174,7 @@ export default function GamePage(): JSX.Element {
     return (
         <div style={styles}>
             {/* <Chart /> */}
+            <ChartModal />
             <ReactFlow
                 nodes={nodes}
                 edges={[]}

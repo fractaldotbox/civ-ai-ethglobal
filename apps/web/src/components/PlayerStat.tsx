@@ -6,12 +6,12 @@ import { COLOR_CLASS_BY_PLAYER, asPlayerKey } from '@repo/engine';
 const ResourceScore = ({
     resource,
     playerKey,
-    scoreByPlayerKey,
+    scoreByResourceByPlayerKey,
     scoreCurrentTurnByPlayerKey
 }: {
     resource: TileResource,
     playerKey: string,
-    scoreByPlayerKey: any,
+    scoreByResourceByPlayerKey: any,
     scoreCurrentTurnByPlayerKey: any
 }) => {
 
@@ -19,21 +19,21 @@ const ResourceScore = ({
         <span className="text-xs">
             {LABEL_BY_TILE_RESOURCE[resource]}
             {scoreCurrentTurnByPlayerKey[playerKey][resource]} /
-            {scoreByPlayerKey[playerKey][resource]}
+            {scoreByResourceByPlayerKey[playerKey][resource]}
         </span>
     )
 }
 
 export default (params: {
     player: { playerIndex: number },
-    scoreByPlayerKey: any,
+    scoreByResourceByPlayerKey: any,
     scoreCurrentTurnByPlayerKey: any
 }) => {
 
 
     const {
         player,
-        scoreByPlayerKey,
+        scoreByResourceByPlayerKey,
         scoreCurrentTurnByPlayerKey
     } = params
 

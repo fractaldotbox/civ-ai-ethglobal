@@ -11,25 +11,34 @@ const PlayerBar = () => {
         return
     }
 
-    const { scoreByPlayerKey, scoreCurrentTurnByPlayerKey } = gameState;
+    const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } = gameState;
 
-    const playerKeys = Object.keys(scoreByPlayerKey);
+    const playerKeys = Object.keys(scoreByResourceByPlayerKey);
+
+
+
+    console.log('scoreByResourceByPlayerKey', scoreByResourceByPlayerKey)
 
     return (
-        <div className="flex flex-row">
-            {
-                playerKeys.map((player, i) => (
-                    <PlayerStat
-                        key={"player-" + i}
-                        player={{
-                            playerIndex: i + 1,
-                        }}
-                        scoreByPlayerKey={scoreByPlayerKey}
-                        scoreCurrentTurnByPlayerKey={scoreCurrentTurnByPlayerKey}
-                    />
-                )
-                )
-            }
+        <div className="w-full flex  justify-between">
+            <div className="flex flex-row">
+                {
+                    playerKeys.map((player, i) => (
+                        <PlayerStat
+                            key={"player-" + i}
+                            player={{
+                                playerIndex: i + 1,
+                            }}
+                            scoreByResourceByPlayerKey={scoreByResourceByPlayerKey}
+                            scoreCurrentTurnByPlayerKey={scoreCurrentTurnByPlayerKey}
+                        />
+                    )
+                    )
+                }
+            </div>
+            <div className="flex-end">
+                <button className="btn" onClick={() => document.getElementById('my_modal_1').showModal()}>Research</button>
+            </div>
         </div>
     )
 

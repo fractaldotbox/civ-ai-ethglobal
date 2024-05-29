@@ -9,12 +9,14 @@ export const santizeAction = () => {};
 export enum ActionType {
   Build = 'build',
   Research = 'research',
+  Nuclear = 'nuclear',
 }
 
 export type Action = {
   i?: number;
   j?: number;
   payload: any;
+  playerKey: string;
   type: ActionType;
 };
 
@@ -90,6 +92,31 @@ export const findAdjacentTile = (
   return null;
 };
 
+export const createNuclearAction = (
+  grid: Grid,
+  playerKey: string,
+  oppnentPlayerKey: string,
+): Action => {
+  // const tile = findAdjacentEmptyTile(grid, (tile) => tile.owner === playerKey);
+
+  // TODO find oppnent tile
+
+  const tile = {
+    i: 0,
+    j: 0,
+  };
+
+  const { i, j } = tile;
+  return {
+    type: ActionType.Nuclear,
+    i,
+    j,
+    payload: {
+      owner: playerKey,
+      resourceByKey: {},
+    },
+  };
+};
 export const createBuildAction = (grid: Grid, playerKey: string): Action => {
   const tile = findAdjacentEmptyTile(grid, (tile) => tile.owner === playerKey);
 
@@ -138,6 +165,17 @@ export const actionStrategySync = {
     };
     return grid;
   },
+  [ActionType.Nuclear]: (grid: Grid, action?: Action) => {
+    const { i, j, payload } = action;
+    console.log('apply action', i, j);
+    grid[i]![j] = {
+      i,
+      j,
+      ...grid[i]![j],
+      ...payload,
+    };
+    return grid;
+  },
 };
 
 export const actionStrategyAsync = {
@@ -145,8 +183,10 @@ export const actionStrategyAsync = {
     if (!action) {
       return;
     }
-
-    const { playerKey, n } = action.payload;
+    const {
+      playerKey,
+      payload: { n },
+    } = action;
 
     console.log('playerKey, research', n);
 

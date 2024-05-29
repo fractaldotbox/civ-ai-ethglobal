@@ -15,4 +15,10 @@ export const COLOR_CLASS_BY_PLAYER = {
     ]),
   ) as Record<string, string>),
   default: 'orange-100',
-};
+} as Record<string, string>;
+
+export const COLOR_BY_PLAYER = {
+  'player-1': 'blue',
+  'player-2': 'red',
+  'player-3': 'green',
+} as Record<string, string>;

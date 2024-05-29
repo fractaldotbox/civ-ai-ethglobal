@@ -37,7 +37,6 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     const gameMachine = React.useMemo(() => createGameMachine(gameSeed), []);
     const [snapshot, send, actorRef] = useMachine(gameMachine);
 
-    console.log('machine snapshot updated', snapshot);
 
     // TODO lifeclce update only after initialized
     const [gameState, setGameState] = useState<GameState>({
@@ -50,7 +49,6 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     }, [snapshot])
 
 
-    // expect(game.getSnapshot().context.currentTurn).toBe(0);
 
 
     // seems enough to ensure all listeners run

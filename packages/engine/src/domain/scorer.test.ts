@@ -62,15 +62,17 @@ describe('scorer', () => {
   });
 
   test('#calculateScoreCurrentTurnByPlayerKey', () => {
-    const scoreByPlayerKey = calculateScoreCurrentTurnByPlayerKey(
+    const scoreByResourceByPlayerKey = calculateScoreCurrentTurnByPlayerKey(
       grid,
       playerKeys,
     );
 
-    expect(scoreByPlayerKey).toEqual(expectedScoreCurrentTurnByPlayerKey);
+    expect(scoreByResourceByPlayerKey).toEqual(
+      expectedScoreCurrentTurnByPlayerKey,
+    );
   });
   test('score by players', () => {
-    const { scoreByPlayerKey, scoreCurrentTurnByPlayerKey } =
+    const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } =
       calculateScoreByPlayer(grid, {
         [asPlayerKey(1)]: {
           science: 1,
@@ -90,7 +92,7 @@ describe('scorer', () => {
       expectedScoreCurrentTurnByPlayerKey,
     );
 
-    expect(scoreByPlayerKey).toEqual({
+    expect(scoreByResourceByPlayerKey).toEqual({
       [asPlayerKey(1)]: {
         food: 5,
         science: 4,

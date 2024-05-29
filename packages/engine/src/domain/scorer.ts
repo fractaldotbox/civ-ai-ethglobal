@@ -49,16 +49,16 @@ function zipObjectsSum(
 // TODO ensure immutable
 export const calculateScoreByPlayer = (
   grid: Grid,
-  currentScoreByPlayerKey: Record<string, any>,
+  currentscoreByResourceByPlayerKey: Record<string, any>,
 ) => {
-  const playerKeys = Object.keys(currentScoreByPlayerKey);
+  const playerKeys = Object.keys(currentscoreByResourceByPlayerKey);
   const scoreCurrentTurnByPlayerKey = calculateScoreCurrentTurnByPlayerKey(
     grid,
     playerKeys,
   );
   // iterate score to see anyone become winner
 
-  const scoreByPlayerKey: Record<
+  const scoreByResourceByPlayerKey: Record<
     string,
     Record<TileResource, number>
   > = Object.fromEntries(
@@ -66,7 +66,7 @@ export const calculateScoreByPlayer = (
       return [
         playerKey,
         zipObjectsSum(
-          currentScoreByPlayerKey[playerKey],
+          currentscoreByResourceByPlayerKey[playerKey],
           scoreCurrentTurnByPlayerKey[playerKey],
         ),
       ];
@@ -74,7 +74,7 @@ export const calculateScoreByPlayer = (
   );
 
   return {
-    scoreByPlayerKey,
+    scoreByResourceByPlayerKey,
     scoreCurrentTurnByPlayerKey,
   };
 };
