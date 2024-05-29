@@ -102,8 +102,8 @@ export const createNuclearAction = (
   // TODO find oppnent tile
 
   const tile = {
-    i: 0,
-    j: 0,
+    i: _.random(0, grid.length),
+    j: _.random(0, grid.length),
   };
 
   const { i, j } = tile;
@@ -111,9 +111,11 @@ export const createNuclearAction = (
     type: ActionType.Nuclear,
     i,
     j,
+    playerKey,
     payload: {
-      owner: playerKey,
-      resourceByKey: {},
+      // owner: playerKey,
+      resourceByType: {},
+      building: TileBuilding.Nuclear,
     },
   };
 };
@@ -129,6 +131,7 @@ export const createBuildAction = (grid: Grid, playerKey: string): Action => {
     type: ActionType.Build,
     i,
     j,
+    playerKey,
     payload: {
       owner: playerKey,
       building: TileBuilding.City,
@@ -156,7 +159,6 @@ export const createResearchAction = (
 export const actionStrategySync = {
   [ActionType.Build]: (grid: Grid, action?: Action) => {
     const { i, j, payload } = action;
-    console.log('apply action', i, j);
     grid[i]![j] = {
       i,
       j,
@@ -167,7 +169,6 @@ export const actionStrategySync = {
   },
   [ActionType.Nuclear]: (grid: Grid, action?: Action) => {
     const { i, j, payload } = action;
-    console.log('apply action', i, j);
     grid[i]![j] = {
       i,
       j,
@@ -209,6 +210,7 @@ export const applySyncAction = (grid: Grid, action?: Action) => {
 
   const { type } = action;
 
+  console.log('apply action', action.type);
   return {
     grid: actionStrategySync[type as ActionType.Build](grid, action),
   };

@@ -6,13 +6,18 @@ export type LogEvent = {
 
 const FORMATTER_BY_BUILD_TYPE = {
   [ActionType.Build]: (log: LogEvent) => {
-    const { i, j, payload } = log.action;
+    const { i, j, payload, playerKey } = log.action;
     const { owner, building } = payload;
-    return `Player ${owner} built ${building} [${i}, ${j}]`;
+    return `Player ${playerKey} built ${building} [${i}, ${j}]`;
+  },
+  [ActionType.Nuclear]: (log: LogEvent) => {
+    const { i, j, payload, playerKey } = log.action;
+    const { owner } = payload;
+    return `Player ${playerKey} Nuke [${i}, ${j}]`;
   },
   [ActionType.Research]: (log: LogEvent) => {
-    const { payload } = log.action;
-    const { playerKey, n } = payload;
+    const { payload, playerKey } = log.action;
+    const { n } = payload;
     return `Player ${playerKey} research PrimeGPT-${n}`;
   },
 };

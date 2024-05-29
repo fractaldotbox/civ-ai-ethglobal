@@ -25,6 +25,7 @@ import {
   applyAsyncAction,
   applySyncAction,
   createBuildAction,
+  createNuclearAction,
   createResearchAction,
 } from './action';
 import { asPlayerIndex, asPlayerKey } from './player';
@@ -97,13 +98,18 @@ export const playerMachine = createMachine(
                 const isResearchTurn =
                   ((turn % 3) as number) + 1 === playerIndex;
 
+                const isNuclear = Math.random() > 0.5;
+
                 const buildAction = createBuildAction(grid, playerKey);
+
+                const nuclearAction = createNuclearAction(grid, playerKey);
+
                 console.log('research-turn', playerKey, playerIndex, turn % 3);
                 if (isResearchTurn) {
                   const researchAction = createResearchAction(turn, playerKey);
                   return [buildAction, researchAction];
                 }
-                return [buildAction];
+                return [isNuclear ? nuclearAction : buildAction];
 
                 console.log(playerKey + ' action');
               },
@@ -251,7 +257,7 @@ export const createGameMachine = (gameSeed: GameSeed) =>
 
             const { type, payload } = playerAction;
 
-            if (playerAction.type === ActionType.Build) {
+            if ([ActionType.Build, ActionType.Nuclear].includes(type)) {
               const { grid } = applySyncAction(context.grid, playerAction)!;
               context.grid = grid;
             }

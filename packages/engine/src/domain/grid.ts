@@ -20,6 +20,7 @@ export enum TileBuilding {
   Farm = 'farm',
   Lab = 'lab',
   SolarPanel = 'solar-panel',
+  Nuclear = 'nuclear',
 }
 
 export const LABEL_BY_TILE_BUILDING = {
@@ -29,6 +30,8 @@ export const LABEL_BY_TILE_BUILDING = {
   [TileBuilding.Farm]: '🌱',
   // ⚡🛰️
   [TileBuilding.SolarPanel]: '☀️',
+
+  [TileBuilding.Nuclear]: '☢️',
   //
   [TileBuilding.Lab]: '🔬',
 };
