@@ -7,6 +7,7 @@ module.exports = {
     safelist: [
 
         'bg-white',
+        'bg-black',
 
         // #fdba74
         'bg-orange-100',

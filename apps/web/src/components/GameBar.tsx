@@ -13,6 +13,9 @@ export default () => {
             type: 'NEXT'
         });
     }
+
+
+
     return (
 
         <div className="h-12" >
@@ -25,15 +28,23 @@ export default () => {
                 </div>
 
                 <div className="flex justify-around p-2">
-                    <div className="p-2">
+                    <div className="p-2 justify-center items-center">
                         <button
                             onClick={() => {
-                                setAutoPlay(setInterval(() => {
-                                    nextTurn();
-                                }, 500));
-                            }}>Auto Play</button>
+                                if (autoPlay) {
+                                    clearInterval(autoPlay as NodeJS.Timeout);
+                                    setAutoPlay(undefined);
+                                } else {
+                                    setAutoPlay(setInterval(() => {
+                                        nextTurn();
+                                    }, 1000));
+                                }
+
+                            }}>
+                            {autoPlay && <span className="loading loading-spinner loading-sm"></span>}
+                            Auto Play</button>
                     </div>
-                    <div className="p-2">
+                    <div className="p-2  justify-center items-center">
                         <button onClick={() => {
                             nextTurn();
                         }}>End Turn</button>

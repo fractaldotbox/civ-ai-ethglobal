@@ -102,8 +102,8 @@ export const createNuclearAction = (
   // TODO find oppnent tile
 
   const tile = {
-    i: _.random(0, grid.length),
-    j: _.random(0, grid.length),
+    i: _.random(0, grid.length - 1),
+    j: _.random(0, grid.length - 1),
   };
 
   const { i, j } = tile;
@@ -149,8 +149,8 @@ export const createResearchAction = (
 ): Action => {
   return {
     type: ActionType.Research,
+    playerKey,
     payload: {
-      playerKey,
       n: resourceCount * 1e2,
     },
   };

@@ -17,6 +17,7 @@ import {
     LABEL_BY_TILE_BUILDING,
     LABEL_BY_TILE_RESOURCE,
     Tile,
+    TileBuilding,
     TileResource,
 } from '@repo/engine';
 import { mapSnapshotAsNodes } from '../../../../vm/grid';
@@ -58,7 +59,7 @@ const mapBuildingAsLabel = (tile: Tile) => {
 
     // stable order
     return (
-        <div className="flex flex-row">
+        <div className="flex flex-row text-xl">
             {LABEL_BY_TILE_BUILDING[building]}
         </div>
     );
@@ -88,6 +89,14 @@ const mapResourceAsLabel = (tile: Tile) => {
         </div>
     );
 };
+
+export const deriveTileBgColor = (tile: Tile) => {
+    const { owner = '', resourceByType } = tile;
+    if (tile.building === TileBuilding.Nuclear) {
+        return 'bg-black'
+    }
+    return "bg-" + (COLOR_CLASS_BY_PLAYER[owner] || COLOR_CLASS_BY_PLAYER.default);
+}
 
 // TODO add log events
 
@@ -120,11 +129,13 @@ export default function GamePage(): JSX.Element {
     const HexagonNode = (node: WrapNodeProps<Tile>) => {
         const { data: tile, id, xPos, yPos } = node;
         const { owner = '', resourceByType } = tile;
-        const backgroundClassName = "bg-" + (COLOR_CLASS_BY_PLAYER[owner] || COLOR_CLASS_BY_PLAYER.default);
+
+        const backgroundClassName = deriveTileBgColor(tile);
 
         const resourceLabel = mapResourceAsLabel(tile);
 
         const buildingLabel = mapBuildingAsLabel(tile);
+
 
         return (
 
@@ -146,8 +157,6 @@ export default function GamePage(): JSX.Element {
                 <div className="flex flex-col justify-center">
                     <div className="text-sm">
                         {resourceLabel}
-
-                        {owner}
                     </div>
                     {/* <div className="text-xs">{xPos},{yPos}</div> */}
 

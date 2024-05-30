@@ -20,7 +20,7 @@ const PlayerBar = () => {
     console.log('scoreByResourceByPlayerKey', scoreByResourceByPlayerKey)
 
     return (
-        <div className="w-full flex  justify-between">
+        <div className="w-full flex pt-5 justify-between items-center">
             <div className="flex flex-row">
                 {
                     playerKeys.map((player, i) => (

@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { Grid, Tile, TileBuilding, generateEmptyGrid } from './grid';
-import { createBuildAction, findAdjacentEmptyTile } from './action';
+import {
+  applySyncAction,
+  createBuildAction,
+  findAdjacentEmptyTile,
+} from './action';
 import { asPlayerIndex, asPlayerKey } from './player';
 
 describe('Grid', () => {
@@ -77,7 +81,7 @@ describe('Grid', () => {
     };
     const action = createBuildAction(grid, asPlayerKey(1));
 
-    const { grid: gridResult } = await applyAction(grid, action);
+    const { grid: gridResult } = await applySyncAction(grid, action);
     expect({ gridResult }[0]![4]!.building).toEqual(TileBuilding.City);
   });
 });

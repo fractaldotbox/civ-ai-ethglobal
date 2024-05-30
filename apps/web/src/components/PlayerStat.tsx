@@ -16,10 +16,13 @@ const ResourceScore = ({
 }) => {
 
     return (
-        <span className="text-xs">
+        <span className="text-lg">
             {LABEL_BY_TILE_RESOURCE[resource]}
-            {scoreCurrentTurnByPlayerKey[playerKey][resource]} /
-            {scoreByResourceByPlayerKey[playerKey][resource]}
+            <div className="indicator">
+                <span className="indicator-item badge badge-primary"> {scoreCurrentTurnByPlayerKey[playerKey][resource]}+</span>
+                <button className="btn">{scoreByResourceByPlayerKey[playerKey][resource]}</button>
+            </div>
+
         </span>
     )
 }
@@ -46,13 +49,15 @@ export default (params: {
 
     // TODO context obj
     return (
-        <div className="p-4 pt-1 flex flex-row items-center">
+        <div className="p-4 flex flex-row items-center justify-center">
             <span className={playerClassName}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
                     <path fillRule="evenodd" d="M3 6a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3V6ZM3 15.75a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-2.25Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3v-2.25Z" clipRule="evenodd" />
                 </svg>
             </span>
-            Player {playerIndex}
+            <div>
+                Player {playerIndex}
+            </div>
             <ResourceScore
                 resource={TileResource.Compute}
                 playerKey={playerKey}

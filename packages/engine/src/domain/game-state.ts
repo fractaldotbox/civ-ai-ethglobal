@@ -38,6 +38,7 @@ export type GameState = {
     turn: number;
     playerKey: string;
   };
+  playerNameByKey: Record<string, string>;
   scoreByResourceByPlayerKey: Record<string, { [k in TileResource]: number }>;
   scoreCurrentTurnByPlayerKey: Record<string, { [k in TileResource]: number }>;
   players: any[];
@@ -55,6 +56,28 @@ const deck = Array(52)
   .map((_, i) => i + 1);
 
 // model ownership of tiles at game for easier source of truth
+
+// interface for easily replaceable with actionable for debug
+const createDummyAi = () => {
+  return {
+    deriveSyncActions: (grid: Grid, playerKey: string) => {
+      console.log('dummy ai send');
+
+      const isNuclear = Math.random() > 0.5;
+
+      const buildAction = createBuildAction(grid, playerKey);
+
+      const oppnentPlayerKey = 'player-2';
+      const nuclearAction = createNuclearAction(
+        grid,
+        playerKey,
+        oppnentPlayerKey,
+      );
+
+      return [isNuclear ? nuclearAction : buildAction];
+    },
+  };
+};
 
 // pop up player actions onto game states
 
@@ -91,6 +114,13 @@ export const playerMachine = createMachine(
 
                 console.log('turn', turn);
 
+                const dummyAi = createDummyAi();
+
+                const syncActions = dummyAi.deriveSyncActions(
+                  grid,
+                  playerKey,
+                ) as Action[];
+
                 const playerIndex = asPlayerIndex(playerKey);
 
                 // TODO math random offset for balance
@@ -98,20 +128,12 @@ export const playerMachine = createMachine(
                 const isResearchTurn =
                   ((turn % 3) as number) + 1 === playerIndex;
 
-                const isNuclear = Math.random() > 0.5;
-
-                const buildAction = createBuildAction(grid, playerKey);
-
-                const nuclearAction = createNuclearAction(grid, playerKey);
-
                 console.log('research-turn', playerKey, playerIndex, turn % 3);
                 if (isResearchTurn) {
                   const researchAction = createResearchAction(turn, playerKey);
-                  return [buildAction, researchAction];
+                  return [...syncActions, researchAction];
                 }
-                return [isNuclear ? nuclearAction : buildAction];
-
-                console.log(playerKey + ' action');
+                return syncActions;
               },
             }),
           },
@@ -207,6 +229,12 @@ export const createGameMachine = (gameSeed: GameSeed) =>
           playerKey: '',
         },
         primesByPlayerKey: createByPlayerKey(gameSeed.playerCount, () => []),
+        // TODO metadata injected
+        playerNameByKey: {
+          'player-1': 'Nuclear Gandhi',
+          'player-2': 'Purist Vitalik',
+          'player-3': 'Ironman Musk',
+        } as Record<string, string>,
         players: [] as any[],
         scoreByResourceByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
@@ -253,9 +281,9 @@ export const createGameMachine = (gameSeed: GameSeed) =>
             const {
               data: { playerAction },
             } = event;
-            self.send({ type: 'emitLog', action: playerAction });
+            self.send({ type: 'emitLog', action: playerAction } as EventObject);
 
-            const { type, payload } = playerAction;
+            const { type, payload, playerKey } = playerAction;
 
             if ([ActionType.Build, ActionType.Nuclear].includes(type)) {
               const { grid } = applySyncAction(context.grid, playerAction)!;
@@ -263,14 +291,14 @@ export const createGameMachine = (gameSeed: GameSeed) =>
             }
 
             if (playerAction.type === ActionType.Research) {
-              // const { results } = await applyAsyncAction(
-              //   context.grid,
-              //   playerAction,
-              // )!;
+              const { results } = await applyAsyncAction(
+                context.grid,
+                playerAction,
+              )!;
 
               const { scoreByResourceByPlayerKey } = context;
 
-              const { n, playerKey } = payload;
+              const { n } = payload;
 
               const score = scoreByResourceByPlayerKey[playerKey];
 
@@ -284,11 +312,11 @@ export const createGameMachine = (gameSeed: GameSeed) =>
               const cut = n / 100;
 
               // fixture
-              const results = {
-                'player-1': [2, 3, 5],
-                'player-2': [7, 11, 13],
-                'player-3': [19, 23, 29, 31],
-              }[playerKey];
+              // const results = {
+              //   'player-1': [2, 3, 5],
+              //   'player-2': [7, 11, 13],
+              //   'player-3': [19, 23, 29, 31],
+              // }[playerKey];
 
               console.log('Research completed', playerKey, results);
 
