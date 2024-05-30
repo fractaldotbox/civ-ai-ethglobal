@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { asPlayerKey } from './player';
 import { findNPrimes } from './prime';
 
+import PQueue from 'p-queue';
 // prevent error
 export const santizeAction = () => {};
 
@@ -192,7 +193,7 @@ export const actionStrategyAsync = {
     console.log('playerKey, research', n);
 
     // TODO iterate start
-    const primes = await findNPrimes(n, n % 100);
+    const { results: primes } = await findNPrimes(n, n % 100);
 
     console.log('playerKey, research done', primes);
 
@@ -216,6 +217,8 @@ export const applySyncAction = (grid: Grid, action?: Action) => {
   };
 };
 
+const queue = new PQueue({ concurrency: 1 });
+
 // Do not change the grid as eventually consistency
 export const applyAsyncAction = async (grid: Grid, action?: Action) => {
   if (!action) {
@@ -224,10 +227,9 @@ export const applyAsyncAction = async (grid: Grid, action?: Action) => {
 
   const { type } = action;
 
-  const results = await actionStrategyAsync[type as ActionType.Research](
-    grid,
-    action,
-  );
+  const results = await queue.add(async () => {
+    return actionStrategyAsync[type as ActionType.Research](grid, action);
+  });
 
   return {
     results,

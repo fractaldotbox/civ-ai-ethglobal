@@ -38,7 +38,6 @@ const mapPrimeAsData = (primes: number[], playerKey: string, color: string) => {
 
 export const ChartDataContextProvider = ({ children }: { children: React.ReactNode }) => {
     const { gameState, send } = useGameContext();
-    // const { data } = React.useContext(ChartDataContext);
 
     if (!gameState) {
         return

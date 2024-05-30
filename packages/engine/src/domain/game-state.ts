@@ -9,7 +9,7 @@
  *
  *
  */
-
+import _ from 'lodash';
 import { createMachine, assign, sendParent, EventObject } from 'xstate';
 import {
   GameSeed,
@@ -262,16 +262,17 @@ export const createGameMachine = (gameSeed: GameSeed) =>
           }),
         },
         researchUpdated: {
-          actions: assign(({ context, event }): any => {
-            const { playerKey, results } = event;
+          actions: assign(({ context, event, self }): any => {
+            const { playerKey, primes } = event;
 
-            console.log('research results', playerKey, results);
-            // union
-            results.forEach((result: any) => {
-              context.primesByPlayerKey[playerKey] =
-                context.primesByPlayerKey[playerKey] || [];
-              context.primesByPlayerKey[playerKey].push(result);
-            });
+            console.log('research results', playerKey, primes);
+
+            context.primesByPlayerKey[playerKey] = _.union(
+              primes,
+              context.primesByPlayerKey[playerKey],
+            );
+
+            // not emit log as delay
           }),
         },
 
@@ -309,8 +310,6 @@ export const createGameMachine = (gameSeed: GameSeed) =>
                 scoreByResourceByPlayerKey[playerKey][TileResource.Compute] = 1;
               }
 
-              const cut = n / 100;
-
               // fixture
               // const results = {
               //   'player-1': [2, 3, 5],
@@ -318,14 +317,16 @@ export const createGameMachine = (gameSeed: GameSeed) =>
               //   'player-3': [19, 23, 29, 31],
               // }[playerKey];
 
-              console.log('Research completed', playerKey, results);
+              if (results) {
+                const { primes } = results;
+                console.log('Research completed', playerKey, primes);
 
-              // add to chart
-              self.send({
-                type: 'researchUpdated',
-                playerKey,
-                results,
-              } as EventObject);
+                self.send({
+                  type: 'researchUpdated',
+                  playerKey,
+                  primes,
+                } as EventObject);
+              }
             }
 
             //  emit

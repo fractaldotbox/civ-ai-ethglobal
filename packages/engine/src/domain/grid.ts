@@ -12,7 +12,10 @@ export type Grid = Tile[][];
 
 export enum TileResource {
   Compute = 'compute',
+  // Locked
   Science = 'science',
+  Productivity = 'productivity',
+  Research = 'research',
 }
 
 export enum TileBuilding {
@@ -39,6 +42,8 @@ export const LABEL_BY_TILE_BUILDING = {
 export const LABEL_BY_TILE_RESOURCE = {
   [TileResource.Compute]: '⚡',
   [TileResource.Science]: '🧪',
+  [TileResource.Research]: '🔬',
+  // [TileResource.Productivity]: '⚙️',
 };
 
 export const generateEmptyGrid = (rowSize: number, columnSize: number) =>

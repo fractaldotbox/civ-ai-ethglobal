@@ -13,6 +13,9 @@ export async function GET(req: any) {
   const { nextUrl } = req;
 
   const n = nextUrl.searchParams.get('n') || 100;
+
+  const start = parseInt(nextUrl.searchParams.get('start'), 10) || 0;
+
   console.log('find prime n=', n);
 
   const hash = '20f361';
@@ -21,7 +24,7 @@ export async function GET(req: any) {
   // --pricing-instruction-price 1
   // const command = '/usr/local/bin/hive';
   const pathname = path.join(process.cwd(), '../../');
-  console.log('pathname', pathname);
+
   const { stdout } = await execa({
     cwd: pathname,
     // required otherwise not found
@@ -38,15 +41,14 @@ export async function GET(req: any) {
     '/tmp/coophive/data/downloaded-files/' + resultId + '/stdout',
   ]);
 
-  console.log('result', {
-    resultId,
-    output,
-  });
+  const results = output
+    .split('\n')
+    .filter((n: string) => parseInt(n, 10) >= start);
 
   return new Response(
     JSON.stringify({
       resultId,
-      output: output.split('\n'),
+      results,
     }),
     {
       status: 200,
