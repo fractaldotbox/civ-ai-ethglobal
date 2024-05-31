@@ -47,17 +47,12 @@ export type GameState = {
   scoreCurrentTurnByPlayerKey: Record<string, { [k in TileResource]: number }>;
   players: any[];
   grid: Grid;
-  deck: number[];
   primesByPlayerKey: Record<string, number[]>;
 };
 
 export type Card = {
   name: 'a';
 };
-// Define the structure of the deck and the function to draw cards
-const deck = Array(52)
-  .fill(null)
-  .map((_, i) => i + 1);
 
 // model ownership of tiles at game for easier source of truth
 
@@ -125,8 +120,6 @@ export const playerMachine = createMachine(
                 // update turn
 
                 const { turn } = context.currentTurnMetadata;
-
-                console.log('turn', turn);
 
                 const dummyAi = createDummyAi();
 
@@ -217,7 +210,6 @@ const createSendToPlayer =
     await context.players[playerIndex - 1].send({
       type: 'DRAW',
       scoreByResourceByPlayerKey: context.scoreByResourceByPlayerKey,
-      cards: context.deck.slice(0, 3),
       grid,
       currentTurnMetadata: context.currentTurnMetadata,
     });
@@ -272,7 +264,6 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           }),
         ),
         grid,
-        deck,
       } as GameState,
       on: {
         emitLog: {
@@ -381,19 +372,19 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           },
         },
         player1: {
-          entry: [playerEntry(1), 'drawCards', createSendToPlayer(1)],
+          entry: [playerEntry(1), createSendToPlayer(1)],
           on: {
             NEXT: 'player2',
           },
         },
         player2: {
-          entry: [playerEntry(2), 'drawCards', createSendToPlayer(2)],
+          entry: [playerEntry(2), createSendToPlayer(2)],
           on: {
             NEXT: 'player3',
           },
         },
         player3: {
-          entry: [playerEntry(3), 'drawCards', createSendToPlayer(3)],
+          entry: [playerEntry(3), createSendToPlayer(3)],
           on: {
             NEXT: 'endTurn',
           },
@@ -420,13 +411,10 @@ export const createGameMachine = (gameSeed: GameSeed) => {
     },
     {
       actions: {
-        drawCards: assign({
-          deck: ({ context }) => context.deck.slice(3),
-        }),
-
         wrapUpTurn: ({ context, self }) => {
           console.log('wrap up turn', context?.currentTurnMetadata?.turn);
 
+          console.log('context', JSON.stringify(context));
           const { grid } = context;
           const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } =
             calculateScoreByPlayer(grid, context.scoreByResourceByPlayerKey);
@@ -436,7 +424,6 @@ export const createGameMachine = (gameSeed: GameSeed) => {
 
           const template = STANDARD_GAME_EVENT_TEMPLATES[0];
           if (context.currentTurnMetadata.turn === 0) {
-            console.log('start');
             context.events.push(template());
           }
 

@@ -67,7 +67,6 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
 
     const events = useSelector(actorRef, selectEvents);
     if (events.length > lastEventIndex + 1) {
-        console.log('show events', lastEventIndex)
         setLastEventIndex(lastEventIndex + 1);
     }
     // TODO listen events

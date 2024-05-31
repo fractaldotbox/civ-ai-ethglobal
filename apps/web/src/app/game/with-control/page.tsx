@@ -56,8 +56,6 @@ const mapBuildingAsLabel = (tile: Tile) => {
     if (!building) {
         return <></>
     }
-
-    // stable order
     return (
         <div className="flex flex-row text-xl">
             {LABEL_BY_TILE_BUILDING[building]}
@@ -75,7 +73,7 @@ const mapResourceAsLabel = (tile: Tile) => {
                 const count = resourceByType?.[resource] || 0;
                 if (count > 0) {
                     return (
-                        <div className="flex flex-col">
+                        <div className="flex flex-col" key={"row" + resource}>
                             {Array(count)
                                 .fill(null)
                                 .map((v, i) => {

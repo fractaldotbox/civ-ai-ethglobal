@@ -54,7 +54,6 @@ describe('Game State Machine', () => {
 
     snapshot.context.players.forEach((player: any) => {
       const snapshot = player.getSnapshot();
-      console.log('snpahost', snapshot.value);
     });
 
     console.log(snapshot.context);
