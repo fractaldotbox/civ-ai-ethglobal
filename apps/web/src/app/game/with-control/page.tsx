@@ -1,6 +1,6 @@
 'use client';
 import _ from 'lodash';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactFlow, {
     Node,
     useNodesState,
@@ -24,6 +24,7 @@ import { mapSnapshotAsNodes } from '../../../../vm/grid';
 import { useGameContext } from '../../../components/GameContextProvider';
 import { COLOR_CLASS_BY_PLAYER, asPlayerKey } from '@repo/engine';
 import Chart, { ChartDataContextProvider } from '../../../components/Chart';
+import EventModal from '../../../components/EventModal';
 
 const GRID_TILE_WIDTH = 100;
 const GRID_TILE_WIDTH_PX = GRID_TILE_WIDTH + 'px';
@@ -33,7 +34,6 @@ const GRID_SIZE = 10;
 export const ChartModal = () => {
     return (
         <ChartDataContextProvider>
-
             <dialog id="my_modal_1" className="modal">
                 <div className="modal-box w-11/12 max-w-5xl">
                     <h3 className="font-bold text-lg">Research Progress</h3>
@@ -102,15 +102,30 @@ export const deriveTileBgColor = (tile: Tile) => {
 
 export default function GamePage(): JSX.Element {
     const [nodes, setNodes]: any = useState([]);
-
+    const [currentEvent, setCurrentEvent]: any = useState({});
     // TODO transform mapping
 
-    const { gameState, send } = useGameContext();
+    const { gameState, lastEventIndex, send, toggleAutoPlay } = useGameContext();
+
+    useEffect(() => {
+
+        if (lastEventIndex < 0) {
+            return;
+        }
+
+        console.log('setCurrentEvent', lastEventIndex)
+        // stop the auto play
+        setCurrentEvent(gameState?.events?.[lastEventIndex] || {})
+        toggleAutoPlay();
+
+        document.getElementById('my_modal_3').showModal();
+    }, [lastEventIndex])
+
 
     useEffect(() => {
         if (!gameState) return;
         // TODO use snapshot
-        const { grid } = gameState;
+        const { grid, } = gameState;
         console.log('nodes update')
         const nodes = mapSnapshotAsNodes(
             {
@@ -182,6 +197,7 @@ export default function GamePage(): JSX.Element {
 
     return (
         <div style={styles}>
+            <EventModal event={currentEvent} />
             {/* <Chart /> */}
             <ChartModal />
             <ReactFlow
