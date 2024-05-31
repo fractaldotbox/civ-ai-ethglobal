@@ -1,14 +1,13 @@
 import React from "react";
 import { GameContextProvider, useGameContext } from "./GameContextProvider";
 import { mapLogAsMessage } from "@repo/engine";
+import Button from "./Button";
 
 export default () => {
-    const [autoPlay, setAutoPlay] = React.useState<NodeJS.Timeout | undefined>();
 
-    const { send, gameState } = useGameContext();
+    const { send, gameState, autoPlay, toggleAutoPlay } = useGameContext();
 
     const nextTurn = () => {
-        console.log('next');
         send({
             type: 'NEXT'
         });
@@ -19,35 +18,31 @@ export default () => {
     return (
 
         <div className="h-12" >
-            {/* <div>Next</div> */}
             <div className="flex flex-row justify-between">
                 <div className="col h-32">
-                    Current Turn {gameState?.currentTurnMetadata.turn}
-                    {/* {gameState?.logs?.length} */}
                     {gameState?.logs.map((log, index) => { return <div key={index}>{mapLogAsMessage(log)}</div> })}
                 </div>
 
                 <div className="flex justify-around p-2">
                     <div className="p-2 justify-center items-center">
-                        <button
+                        <Button
                             onClick={() => {
                                 if (autoPlay) {
-                                    clearInterval(autoPlay as NodeJS.Timeout);
-                                    setAutoPlay(undefined);
+                                    toggleAutoPlay();
                                 } else {
-                                    setAutoPlay(setInterval(() => {
+                                    toggleAutoPlay(() => {
                                         nextTurn();
-                                    }, 1000));
+                                    });
                                 }
 
                             }}>
                             {autoPlay && <span className="loading loading-spinner loading-sm"></span>}
-                            Auto Play</button>
+                            Auto Play</Button>
                     </div>
                     <div className="p-2  justify-center items-center">
-                        <button onClick={() => {
+                        <Button onClick={() => {
                             nextTurn();
-                        }}>End Turn</button>
+                        }}>End Turn</Button>
                     </div>
                 </div>
 

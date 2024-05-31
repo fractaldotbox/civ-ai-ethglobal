@@ -2,10 +2,13 @@ import { GameState, TileResource, createGameMachine, generateRandomGrid } from '
 import React, { createContext, useEffect, useState } from 'react';
 import { createActor } from 'xstate';
 
-import { useActor, useMachine } from '@xstate/react';
+import { useActor, useMachine, useSelector } from '@xstate/react';
 
 export type GameStateWrapper = {
+    lastEventIndex: number;
     gameState?: GameState;
+    autoPlay: NodeJS.Timeout | undefined;
+    toggleAutoPlay: (fn?: (x: any) => any) => void;
     setGameState: (gameState: GameState) => void;
     send: (event: any) => any
 };
@@ -13,6 +16,8 @@ export type GameStateWrapper = {
 
 // Create the context
 export const GameContext = createContext<GameStateWrapper | undefined>(undefined);
+
+const selectEvents = (snapshot: any) => snapshot.context.events;
 
 
 // Create the provider component
@@ -33,10 +38,33 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         }
     }
 
+    const [lastEventIndex, setLastEventIndex] = useState(-1);
+    const [autoPlay, setAutoPlay] = React.useState<NodeJS.Timeout | undefined>();
+
+
+    const toggleAutoPlay = (fn?: () => any) => {
+        if (fn) {
+            setAutoPlay(setInterval(() => {
+                fn();
+            }, 1000));
+        } else {
+            clearInterval(autoPlay as NodeJS.Timeout);
+            setAutoPlay(undefined);
+        }
+    }
+
     // force create once
     const gameMachine = React.useMemo(() => createGameMachine(gameSeed), []);
     const [snapshot, send, actorRef] = useMachine(gameMachine);
 
+    // avoid multiple events per loop
+
+    const events = useSelector(actorRef, selectEvents);
+    if (events.length > lastEventIndex + 1) {
+        console.log('show events', lastEventIndex)
+        setLastEventIndex(lastEventIndex + 1);
+    }
+    // TODO listen events
 
     // TODO lifeclce update only after initialized
     const [gameState, setGameState] = useState<GameState>({
@@ -60,10 +88,10 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     // const snapshot = game.getSnapshot();
 
 
-    // TODO create machine
-
-
     const value = {
+        autoPlay,
+        toggleAutoPlay,
+        lastEventIndex,
         gameState,
         setGameState,
         send

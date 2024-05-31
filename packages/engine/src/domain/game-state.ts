@@ -31,9 +31,12 @@ import {
 import { asPlayerIndex, asPlayerKey } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
+import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
 
 export type GameState = {
   logs: LogEvent[];
+  isEnded: boolean;
+  events: GameEvent[];
   currentTurnMetadata: {
     turn: number;
     playerKey: string;
@@ -224,6 +227,8 @@ export const createGameMachine = (gameSeed: GameSeed) =>
       initial: 'start',
       context: {
         logs: [],
+        events: [],
+        isEnded: false,
         currentTurnMetadata: {
           turn: 0,
           playerKey: '',
@@ -345,7 +350,9 @@ export const createGameMachine = (gameSeed: GameSeed) =>
       states: {
         start: {
           entry: ['wrapUpTurn'],
-          always: 'player1',
+          on: {
+            NEXT: 'player1',
+          },
         },
         player1: {
           entry: [playerEntry(1), 'drawCards', createSendToPlayer(1)],
@@ -367,8 +374,21 @@ export const createGameMachine = (gameSeed: GameSeed) =>
         },
         endTurn: {
           entry: ['wrapUpTurn'],
+          on: {
+            END_GAME: 'endGame',
+          },
+          always: [
+            // need the guard so self event take priority
+            {
+              target: 'player1',
+              guard: ({ context }) => !context.isEnded,
+            },
+          ],
+        },
 
-          always: 'player1',
+        endGame: {
+          entry: ['showEndResults'],
+          type: 'final',
         },
       },
     },
@@ -378,8 +398,8 @@ export const createGameMachine = (gameSeed: GameSeed) =>
           deck: ({ context }) => context.deck.slice(3),
         }),
 
-        wrapUpTurn: ({ context }) => {
-          console.log('wrap up turn', context);
+        wrapUpTurn: ({ context, self }) => {
+          console.log('wrap up turn', context?.currentTurnMetadata?.turn);
 
           const { grid } = context;
           const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } =
@@ -387,8 +407,33 @@ export const createGameMachine = (gameSeed: GameSeed) =>
 
           context.scoreByResourceByPlayerKey = scoreByResourceByPlayerKey;
           context.scoreCurrentTurnByPlayerKey = scoreCurrentTurnByPlayerKey;
+
+          const template = STANDARD_GAME_EVENT_TEMPLATES[0];
+          if (context.currentTurnMetadata.turn === 0) {
+            console.log('start');
+            context.events.push(template());
+          }
+
           context.currentTurnMetadata.turn =
             context.currentTurnMetadata.turn + 1;
+
+          if (context.currentTurnMetadata.turn > 2) {
+            console.log('send end');
+            context.isEnded = true;
+            self.send({
+              type: 'END_GAME',
+            });
+          }
+        },
+        showEndResults: ({ context }) => {
+          console.log('gameover');
+
+          const victoryTemplate = STANDARD_GAME_EVENT_TEMPLATES[1];
+          context.events.push(
+            victoryTemplate({
+              playerKey: 'player-1',
+            }),
+          );
         },
       },
     },
