@@ -12,7 +12,7 @@ export const calculateScoreCurrentTurnByPlayerKey = (
     playerKeys.map((playerKey) => [
       playerKey,
       {
-        [TileResource.Compute]: 0,
+        [TileResource.Energy]: 0,
         [TileResource.Science]: 0,
       },
     ]),

@@ -19,7 +19,7 @@ const ResourceScore = ({
         <span className="text-lg">
             {LABEL_BY_TILE_RESOURCE[resource]}
             <div className="indicator">
-                <span className="indicator-item badge badge-primary"> {scoreCurrentTurnByPlayerKey[playerKey][resource]}+</span>
+                <span className="indicator-item badge badge-primary">+{scoreCurrentTurnByPlayerKey[playerKey][resource]}</span>
                 <button className="btn">{scoreByResourceByPlayerKey[playerKey][resource]}</button>
             </div>
 
@@ -59,7 +59,7 @@ export default (params: {
                 Player {playerIndex}
             </div>
             <ResourceScore
-                resource={TileResource.Compute}
+                resource={TileResource.Energy}
                 playerKey={playerKey}
                 {...params}
 
