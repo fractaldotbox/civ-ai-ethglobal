@@ -29,14 +29,21 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         playerCount: 3,
         tileResourceMax: 3,
         tileByType: {
-            [TileResource.Compute]: {
+            [TileResource.Energy]: {
                 total: 100
             },
             [TileResource.Science]: {
                 total: 100
+            },
+            [TileResource.Research]: {
+                total: 0
             }
         }
     }
+    // force create once
+    const gameMachine = React.useMemo(() => {
+        return createGameMachine(gameSeed)
+    }, []);
 
     const [lastEventIndex, setLastEventIndex] = useState(-1);
     const [autoPlay, setAutoPlay] = React.useState<NodeJS.Timeout | undefined>();
@@ -53,8 +60,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         }
     }
 
-    // force create once
-    const gameMachine = React.useMemo(() => createGameMachine(gameSeed), []);
+
     const [snapshot, send, actorRef] = useMachine(gameMachine);
 
     // avoid multiple events per loop

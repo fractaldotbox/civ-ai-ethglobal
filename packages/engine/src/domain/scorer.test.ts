@@ -35,7 +35,7 @@ describe('scorer', () => {
       ...grid[0][0],
       owner: 'player-1',
       resourceByType: {
-        [TileResource.Compute]: 2,
+        [TileResource.Energy]: 2,
       },
     };
     grid[0][1] = {
@@ -49,7 +49,7 @@ describe('scorer', () => {
       ...grid[0][0],
       owner: 'player-1',
       resourceByType: {
-        [TileResource.Compute]: 2,
+        [TileResource.Energy]: 2,
       },
     };
     grid[1][2] = {

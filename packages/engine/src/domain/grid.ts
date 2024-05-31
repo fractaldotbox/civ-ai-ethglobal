@@ -11,7 +11,7 @@ export type Tile = {
 export type Grid = Tile[][];
 
 export enum TileResource {
-  Compute = 'compute',
+  Energy = 'ernergy',
   // Locked
   Science = 'science',
   Productivity = 'productivity',
@@ -19,6 +19,7 @@ export enum TileResource {
 }
 
 export enum TileBuilding {
+  Hq = 'hq',
   City = 'city',
   Farm = 'farm',
   Lab = 'lab',
@@ -28,6 +29,9 @@ export enum TileBuilding {
 
 export const LABEL_BY_TILE_BUILDING = {
   // 🌆
+
+  [TileBuilding.Hq]: '👑',
+
   [TileBuilding.City]: '🏢',
   // 🌾👨‍🌾🥕
   [TileBuilding.Farm]: '🌱',
@@ -40,7 +44,7 @@ export const LABEL_BY_TILE_BUILDING = {
 };
 
 export const LABEL_BY_TILE_RESOURCE = {
-  [TileResource.Compute]: '⚡',
+  [TileResource.Energy]: '⚡',
   [TileResource.Science]: '🧪',
   [TileResource.Research]: '🔬',
   // [TileResource.Productivity]: '⚙️',
@@ -78,8 +82,7 @@ export const genearteGridWithNonOverlappingTiles = (
 
   let grid = [] as any;
   for (let i = 0; i < rowSize; i++) {
-    grid[i] = tiles.slice(i * columnSize, (i + 1) * columnSize);
-
+    grid[i] = Array(i * columnSize).fill(null);
     for (let j = 0; j < columnSize; j++) {
       const tile = tiles.pop();
       if (tile) {
@@ -162,7 +165,7 @@ export const generateRandomGrid = (gameSeed: GameSeed) => {
   const playerTiles = Array.from({ length: 3 }, (_, i) => {
     return {
       id: `player-${i + 1}`,
-      building: TileBuilding.City,
+      building: TileBuilding.Hq,
     };
   });
 

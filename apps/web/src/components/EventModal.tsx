@@ -10,7 +10,7 @@ export default ({ event }: { event: GameEvent }) => {
         // <button className="btn" onClick={()=>document.getElementById('my_modal_3').showModal()}>open modal</button>
         <dialog id="my_modal_3" className="modal">
             <div className="modal-box w-11/12 max-w-5xl flex flex-col">
-                <h3 className="font-bold text-lg pb-4 ">{title}</h3>
+                <h3 className="font-bold text-xl pb-4">{title}</h3>
                 <div className="w-full flex justify-center">
                     {imageSrc && (
 

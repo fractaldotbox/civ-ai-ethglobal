@@ -25,7 +25,7 @@ describe('Game State Machine', () => {
       playerCount: 2,
       tileResourceMax: 3,
       tileByType: {
-        [TileResource.Compute]: {
+        [TileResource.Energy]: {
           total: 100,
         },
         [TileResource.Science]: {

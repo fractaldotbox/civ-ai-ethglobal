@@ -25,10 +25,11 @@ import {
   applyAsyncAction,
   applySyncAction,
   createBuildAction,
+  createNoopAction,
   createNuclearAction,
   createResearchAction,
 } from './action';
-import { asPlayerIndex, asPlayerKey } from './player';
+import { asPlayerIndex, asPlayerKey, pickRandomPlayer } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
 import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
@@ -63,14 +64,20 @@ const deck = Array(52)
 // interface for easily replaceable with actionable for debug
 const createDummyAi = () => {
   return {
-    deriveSyncActions: (grid: Grid, playerKey: string) => {
+    deriveSyncActions: (
+      grid: Grid,
+      playerKey: string,
+      scoreByResource: any,
+    ) => {
       console.log('dummy ai send');
+
+      const energy = scoreByResource[TileResource.Energy];
 
       const isNuclear = Math.random() > 0.5;
 
       const buildAction = createBuildAction(grid, playerKey);
 
-      const oppnentPlayerKey = 'player-2';
+      const oppnentPlayerKey = pickRandomPlayer(3);
       const nuclearAction = createNuclearAction(
         grid,
         playerKey,
@@ -104,13 +111,17 @@ export const playerMachine = createMachine(
             actions: assign({
               hand: ({ context, event }) => [...context.hand, ...event.cards],
               playerActions: ({ context, event, self }) => {
-                console.log('playerActions', event);
                 const { id: playerKey } = self;
-                const { grid, currentTurnMetadata } = event;
+                const {
+                  grid,
+                  currentTurnMetadata,
+                  scoreByResourceByPlayerKey,
+                } = event;
 
                 const playerId = playerKey.split('-')[1];
 
                 context.currentTurnMetadata = currentTurnMetadata;
+                const scoreByResource = scoreByResourceByPlayerKey[playerKey];
                 // update turn
 
                 const { turn } = context.currentTurnMetadata;
@@ -119,10 +130,14 @@ export const playerMachine = createMachine(
 
                 const dummyAi = createDummyAi();
 
-                const syncActions = dummyAi.deriveSyncActions(
-                  grid,
-                  playerKey,
-                ) as Action[];
+                const syncActions =
+                  scoreByResource[TileResource.Energy] < 5
+                    ? [createNoopAction(playerKey)]
+                    : (dummyAi.deriveSyncActions(
+                        grid,
+                        playerKey,
+                        scoreByResource,
+                      ) as Action[]);
 
                 const playerIndex = asPlayerIndex(playerKey);
 
@@ -163,7 +178,6 @@ export const playerMachine = createMachine(
         },
       })),
       takeResearchAction: sendParent(({ context }) => {
-        console.log('takeResearchAction', context);
         const playerAction = context.playerActions[1];
         if (playerAction) {
           return {
@@ -202,6 +216,7 @@ const createSendToPlayer =
     console.log('sendToPlayer' + playerIndex);
     await context.players[playerIndex - 1].send({
       type: 'DRAW',
+      scoreByResourceByPlayerKey: context.scoreByResourceByPlayerKey,
       cards: context.deck.slice(0, 3),
       grid,
       currentTurnMetadata: context.currentTurnMetadata,
@@ -220,8 +235,9 @@ const createByPlayerKey = (
 };
 
 // Define the state machine for the game
-export const createGameMachine = (gameSeed: GameSeed) =>
-  createMachine(
+export const createGameMachine = (gameSeed: GameSeed) => {
+  const grid = generateRandomGrid(gameSeed);
+  return createMachine(
     {
       id: 'game',
       initial: 'start',
@@ -244,18 +260,18 @@ export const createGameMachine = (gameSeed: GameSeed) =>
         scoreByResourceByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
           () => ({
-            [TileResource.Compute]: 0,
-            [TileResource.Science]: 0,
+            [TileResource.Energy]: 30,
+            [TileResource.Science]: 30,
           }),
         ),
         scoreCurrentTurnByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
           () => ({
-            [TileResource.Compute]: 0,
+            [TileResource.Energy]: 0,
             [TileResource.Science]: 0,
           }),
         ),
-        grid: generateRandomGrid(gameSeed),
+        grid,
         deck,
       } as GameState,
       on: {
@@ -289,7 +305,24 @@ export const createGameMachine = (gameSeed: GameSeed) =>
             } = event;
             self.send({ type: 'emitLog', action: playerAction } as EventObject);
 
-            const { type, payload, playerKey } = playerAction;
+            const {
+              type,
+              payload,
+              playerKey,
+              costByResourceType = {},
+            } = playerAction as Action;
+
+            const current = context.scoreByResourceByPlayerKey[
+              playerKey
+            ] as Record<TileResource, number>;
+
+            Object.keys(costByResourceType).forEach(
+              (resourceType: TileResource) => {
+                current[resourceType] -= costByResourceType[resourceType];
+              },
+            );
+
+            context.scoreByResourceByPlayerKey[playerKey] = current;
 
             if ([ActionType.Build, ActionType.Nuclear].includes(type)) {
               const { grid } = applySyncAction(context.grid, playerAction)!;
@@ -308,19 +341,12 @@ export const createGameMachine = (gameSeed: GameSeed) =>
 
               const score = scoreByResourceByPlayerKey[playerKey];
 
-              const computeCurrent =
-                scoreByResourceByPlayerKey?.[playerKey]?.[TileResource.Compute];
+              const energyCurrent =
+                scoreByResourceByPlayerKey?.[playerKey]?.[TileResource.Energy];
 
               if (scoreByResourceByPlayerKey[playerKey]) {
-                scoreByResourceByPlayerKey[playerKey][TileResource.Compute] = 1;
+                scoreByResourceByPlayerKey[playerKey][TileResource.Energy] = 1;
               }
-
-              // fixture
-              // const results = {
-              //   'player-1': [2, 3, 5],
-              //   'player-2': [7, 11, 13],
-              //   'player-3': [19, 23, 29, 31],
-              // }[playerKey];
 
               if (results) {
                 const { primes } = results;
@@ -417,7 +443,7 @@ export const createGameMachine = (gameSeed: GameSeed) =>
           context.currentTurnMetadata.turn =
             context.currentTurnMetadata.turn + 1;
 
-          if (context.currentTurnMetadata.turn > 2) {
+          if (context.currentTurnMetadata.turn > 20) {
             console.log('send end');
             context.isEnded = true;
             self.send({
@@ -438,3 +464,4 @@ export const createGameMachine = (gameSeed: GameSeed) =>
       },
     },
   );
+};

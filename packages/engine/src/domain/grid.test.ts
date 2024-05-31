@@ -29,7 +29,7 @@ describe('Grid', () => {
       playerCount: 2,
       tileResourceMax: 3,
       tileByType: {
-        [TileResource.Compute]: {
+        [TileResource.Energy]: {
           total: 25,
         },
         [TileResource.Science]: {

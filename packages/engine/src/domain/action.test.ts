@@ -4,6 +4,7 @@ import {
   applySyncAction,
   createBuildAction,
   findAdjacentEmptyTile,
+  findPlayerTile,
 } from './action';
 import { asPlayerIndex, asPlayerKey } from './player';
 
@@ -83,5 +84,21 @@ describe('Grid', () => {
 
     const { grid: gridResult } = await applySyncAction(grid, action);
     expect({ gridResult }[0]![4]!.building).toEqual(TileBuilding.City);
+  });
+
+  test('#findPlayerTile', () => {
+    let grid = generateEmptyGrid(2, 2);
+
+    grid[1][1] = {
+      ...grid[1][1],
+      i: 1,
+      j: 1,
+      owner: 'player-1',
+      building: TileBuilding.City,
+    };
+
+    const tile = findPlayerTile(grid, 'player-1');
+    expect(tile!.i).toEqual(1);
+    expect(tile!.j).toEqual(1);
   });
 });

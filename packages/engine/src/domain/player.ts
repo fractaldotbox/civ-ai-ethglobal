@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const asPlayerKey = (id: number) => {
   return ['player', id].join('-');
 };
@@ -22,3 +24,7 @@ export const COLOR_BY_PLAYER = {
   'player-2': 'red',
   'player-3': 'green',
 } as Record<string, string>;
+
+export const pickRandomPlayer = (count: number) => {
+  return asPlayerKey(_.random(0, count) + 1);
+};
