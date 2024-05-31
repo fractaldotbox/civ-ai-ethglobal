@@ -12,6 +12,7 @@
   "dependencies": {
     "@repo/engine": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@wagmi/core": "^2.10.5",
     "@xstate/react": "^4.1.1",
     "autoprefixer": "^10.4.19",
     "daisyui": "^4.11.1",
@@ -25,6 +26,7 @@
     "react-plotly.js": "^2.6.0",
     "reactflow": "^11.11.3",
     "tailwindcss": "^3.4.3",
+    "viem": "^2.13.2",
     "xstate": "^5.13.0"
   },
   "devDependencies": {
