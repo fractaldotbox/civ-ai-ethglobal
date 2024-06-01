@@ -18,6 +18,11 @@ export enum TileResource {
   Research = 'research',
 }
 
+export enum TileWeatherStation {
+  SolarPanel = 'solarPanel',
+  WindTurbine = 'windTurbine',
+}
+
 export enum TileBuilding {
   Hq = 'hq',
   City = 'city',

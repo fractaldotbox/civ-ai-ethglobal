@@ -104,7 +104,7 @@ export const playerMachine = createMachine(
           DRAW: {
             target: 'playing',
             actions: assign({
-              hand: ({ context, event }) => [...context.hand, ...event.cards],
+              // hand: ({ context, event }) => [...context.hand, ...event.cards],
               playerActions: ({ context, event, self }) => {
                 const { id: playerKey } = self;
                 const {
@@ -283,7 +283,6 @@ export const createGameMachine = (gameSeed: GameSeed) => {
               primes,
               context.primesByPlayerKey[playerKey],
             );
-
             // not emit log as delay
           }),
         },
