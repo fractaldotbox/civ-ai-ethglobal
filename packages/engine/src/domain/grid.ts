@@ -11,7 +11,7 @@ export type Tile = {
 export type Grid = Tile[][];
 
 export enum TileResource {
-  Energy = 'ernergy',
+  Energy = 'energy',
   // Locked
   Science = 'science',
   Productivity = 'productivity',

@@ -83,16 +83,6 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
 
 
 
-
-    // seems enough to ensure all listeners run
-    // game.stop();
-
-
-    // console.log(game.getSnapshot())
-
-    // const snapshot = game.getSnapshot();
-
-
     const value = {
         autoPlay,
         toggleAutoPlay,

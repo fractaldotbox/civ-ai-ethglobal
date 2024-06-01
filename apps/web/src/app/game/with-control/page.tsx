@@ -76,7 +76,7 @@ const mapResourceAsLabel = (tile: Tile) => {
                             {Array(count)
                                 .fill(null)
                                 .map((v, i) => {
-                                    return <div key={"tile-" + i}>{LABEL_BY_TILE_RESOURCE[resource]}</div>;
+                                    return <div key={"tile-" + i} className="text-xl">{LABEL_BY_TILE_RESOURCE[resource]}</div>;
                                 })}
                         </div>
                     );
@@ -167,6 +167,7 @@ export default function GamePage(): JSX.Element {
                 id: 'weather=legend-1',
                 type: 'weather-legend',
                 data: {
+                    location: 'Paris'
                 },
                 position: {
                     x: -350,
@@ -177,6 +178,7 @@ export default function GamePage(): JSX.Element {
                 id: 'weather=legend-2',
                 type: 'weather-legend',
                 data: {
+                    location: 'Berlin'
                 },
                 position: {
                     x: -350,
@@ -197,7 +199,7 @@ export default function GamePage(): JSX.Element {
         return (
             <div
                 className="text-4xl p-2">
-                Paris
+                {data?.location}
             </div>
         )
     }

@@ -1,6 +1,16 @@
-# Turborepo starter
+# CIV
 
-This is an official starter Turborepo.
+## Setup
+- cp env.template .env
+- replace private keys
+
+### Agents
+- To use foundry
+ - cd packages/contract
+ - Deploy agents to Galadriel
+   - env-cmd -f ../../.env forge script --legacy script/Deploy.s.sol --via-ir --rpc-url https://devnet.galadriel.com --broadcast  --gas-price 1000000000 --gas-limit 1000000000
+ - Test with Prompt
+
 
 ## Using this example
 

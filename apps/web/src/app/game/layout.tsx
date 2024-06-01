@@ -3,6 +3,8 @@ import { LABEL_BY_TILE_RESOURCE, TileResource } from "@repo/engine";
 import { GameContextProvider, useGameContext } from "../../components/GameContextProvider";
 import GameBar from "../../components/GameBar";
 import PlayerStat from "../../components/PlayerStat";
+import PromptHistoryModal from "../../components/PromptHistoryModal";
+import PromptHistory from "../../components/PromptHistory";
 
 
 const PlayerBar = () => {
@@ -14,7 +16,6 @@ const PlayerBar = () => {
     const { currentTurnMetadata, scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } = gameState;
 
     const playerKeys = Object.keys(scoreByResourceByPlayerKey);
-
 
 
     console.log('scoreByResourceByPlayerKey', scoreByResourceByPlayerKey)
@@ -41,8 +42,8 @@ const PlayerBar = () => {
                 }
             </div>
             <div className="flex-end  justify-around flex flex-row items-center px-2">
-
-                <button className="btn bg-blue-500 text-white" onClick={() => document.getElementById('my_modal_1').showModal()}>Research</button>
+                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document.getElementById('modal_prompt').showModal()}>Prompt History</button>
+                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document.getElementById('my_modal_1').showModal()}>Research</button>
             </div>
         </div>
     )
@@ -54,6 +55,8 @@ export default function GameLayout({
 }: {
     children: React.ReactNode;
 }): JSX.Element {
+
+    const playerKeys = ['player-1', 'player-2'];
     // TODO get players from context
     return (
         <GameContextProvider>
@@ -62,6 +65,7 @@ export default function GameLayout({
             </div>
             {children}
             <GameBar />
+            <PromptHistory />
 
         </GameContextProvider>
     );

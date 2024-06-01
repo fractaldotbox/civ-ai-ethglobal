@@ -23,9 +23,6 @@ export default () => {
                 <div className="col h-32">
                     {gameState?.logs.map((log, index) => { return <div key={index}>{mapLogAsMessage(log)}</div> })}
                 </div>
-
-                <Prompt />
-
                 <div className="flex justify-around p-2">
                     <div className="p-2 justify-center items-center">
                         <Button

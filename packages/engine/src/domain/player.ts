@@ -1,5 +1,11 @@
 import _ from 'lodash';
 
+export type Player = {
+  playerIndex: number;
+  playerKey: string;
+  ref: any;
+};
+
 export const asPlayerKey = (id: number) => {
   return ['player', id].join('-');
 };

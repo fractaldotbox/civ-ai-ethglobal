@@ -29,7 +29,7 @@ import {
   createNuclearAction,
   createResearchAction,
 } from './action';
-import { asPlayerIndex, asPlayerKey, pickRandomPlayer } from './player';
+import { Player, asPlayerIndex, asPlayerKey, pickRandomPlayer } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
 import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
@@ -195,11 +195,6 @@ const playerEntry =
   ({ context }: { context: any }) => {
     console.log('player entry', id);
     context.currentTurnMetadata.playerKey = asPlayerKey(id);
-
-    // only if not exists
-    // const player = createActor(playerMachine);
-    // context.players.push(player);
-    // player.start();
   };
 
 const createSendToPlayer =
@@ -207,7 +202,7 @@ const createSendToPlayer =
   async ({ context }: { context: any }) => {
     const { grid } = context;
     console.log('sendToPlayer' + playerIndex);
-    await context.players[playerIndex - 1].send({
+    await context.players[playerIndex - 1]?.ref.send({
       type: 'DRAW',
       scoreByResourceByPlayerKey: context.scoreByResourceByPlayerKey,
       grid,
@@ -248,7 +243,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           'player-2': 'Purist Vitalik',
           'player-3': 'Ironman Musk',
         } as Record<string, string>,
-        players: [] as any[],
+        players: [] as Player[],
         scoreByResourceByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
           () => ({
@@ -356,11 +351,18 @@ export const createGameMachine = (gameSeed: GameSeed) => {
       },
       entry: [
         assign({
-          players: ({ spawn }) => [
-            spawn(playerMachine, { id: asPlayerKey(1) }),
-            spawn(playerMachine, { id: asPlayerKey(2) }),
-            spawn(playerMachine, { id: asPlayerKey(3) }),
-          ],
+          players: ({ spawn }) =>
+            _.range(1, 3).map((i) => {
+              // TODO inject metadata
+              const playerIndex = i;
+              const playerKey = asPlayerKey(playerIndex);
+              const ref = spawn(playerMachine, { id: playerKey });
+              return {
+                playerId: playerIndex,
+                playerKey,
+                ref,
+              };
+            }),
         }),
       ],
       states: {
@@ -413,7 +415,6 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         wrapUpTurn: ({ context, self }) => {
           console.log('wrap up turn', context?.currentTurnMetadata?.turn);
 
-          console.log('context', JSON.stringify(context));
           const { grid } = context;
           const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } =
             calculateScoreByPlayer(grid, context.scoreByResourceByPlayerKey);
