@@ -1,0 +1,18 @@
+{
+  "games": [
+    {
+      "agents": [
+        {
+          "name": "player-1",
+          "nuclear": 52,
+          "game": 23
+        },
+        {
+          "name": "player-2",
+          "nuclear": 0,
+          "game": 33
+        }
+      ]
+    }
+  ]
+}
