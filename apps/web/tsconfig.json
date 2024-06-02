@@ -12,7 +12,10 @@
     "next.config.js",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../../packages/engine/src/domain/agent-on-chain.ts",
+    "../../packages/engine/src/domain/agent.test.ts",
+    "../../packages/engine/src/domain/agent.ts"
   ],
   "exclude": ["node_modules"]
 }

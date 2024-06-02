@@ -1,4 +1,4 @@
-import { LABEL_BY_TILE_RESOURCE, TileResource } from '@repo/engine';
+import { LABEL_BY_TILE_RESOURCE, Player, TileResource } from '@repo/engine';
 import React, { createContext, useEffect, useState } from 'react';
 import { COLOR_CLASS_BY_PLAYER, asPlayerKey } from '@repo/engine';
 
@@ -28,7 +28,7 @@ const ResourceScore = ({
 }
 
 export default (params: {
-    player: { playerIndex: number },
+    player: Player,
     scoreByResourceByPlayerKey: any,
     scoreCurrentTurnByPlayerKey: any
 }) => {
@@ -41,8 +41,7 @@ export default (params: {
     } = params
 
 
-    const { playerIndex } = player;
-    const playerKey = asPlayerKey(playerIndex)
+    const { playerIndex, playerKey, name } = player;
 
     const playerClassName = "text-" + COLOR_CLASS_BY_PLAYER[playerKey] as string;
     // const playerColorClass = ["text", playerColor, "500"].join('-')
@@ -56,7 +55,7 @@ export default (params: {
                 </svg>
             </span>
             <div>
-                Player {playerIndex}
+                {name || `Player ${playerIndex}`}
             </div>
             <ResourceScore
                 resource={TileResource.Energy}

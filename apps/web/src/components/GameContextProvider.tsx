@@ -26,7 +26,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     const gameSeed = {
         rowSize: 10,
         columnSize: 10,
-        playerCount: 3,
+        playerCount: 4,
         tileResourceMax: 3,
         tileByType: {
             [TileResource.Energy]: {
@@ -67,7 +67,6 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
 
     const events = useSelector(actorRef, selectEvents);
     if (events.length > lastEventIndex + 1) {
-        console.log('show events', lastEventIndex)
         setLastEventIndex(lastEventIndex + 1);
     }
     // TODO listen events
@@ -82,16 +81,6 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         setGameState({ ...snapshot.context });
     }, [snapshot])
 
-
-
-
-    // seems enough to ensure all listeners run
-    // game.stop();
-
-
-    // console.log(game.getSnapshot())
-
-    // const snapshot = game.getSnapshot();
 
 
     const value = {

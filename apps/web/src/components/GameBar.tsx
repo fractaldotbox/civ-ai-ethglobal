@@ -2,6 +2,7 @@ import React from "react";
 import { GameContextProvider, useGameContext } from "./GameContextProvider";
 import { mapLogAsMessage } from "@repo/engine";
 import Button from "./Button";
+import Prompt from "./Prompt";
 
 export default () => {
 
@@ -22,7 +23,6 @@ export default () => {
                 <div className="col h-32">
                     {gameState?.logs.map((log, index) => { return <div key={index}>{mapLogAsMessage(log)}</div> })}
                 </div>
-
                 <div className="flex justify-around p-2">
                     <div className="p-2 justify-center items-center">
                         <Button

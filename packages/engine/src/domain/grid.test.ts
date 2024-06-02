@@ -5,6 +5,8 @@ import {
   generateRandomGrid,
   GameSeed,
   TileResource,
+  TileBuilding,
+  encodedGrid,
 } from './grid';
 
 describe('Grid', () => {
@@ -42,6 +44,13 @@ describe('Grid', () => {
 
     // TODO check resource assigned
 
+    grid[0][0].building = TileBuilding.City;
+
+    grid[0][0].resourceByType[TileResource.Energy] = 3;
+    grid[0][0].owner = 'player-1';
+
+    const encoded = encodedGrid(grid);
+    expect(encoded[0]).toEqual('i:0j:0o:player-1r:science-1,energy-3');
     // expect(_.every(grid[0], (row:any)=>_.sum(_.values(row?.resourceByType)) < 5* gameSeed.rowSize)).toBe(true);
     // expect(_.every(grid[0], (row:any)=>_.every(row, i => i.resourceByType < gameSeed.tileResourceMax))).toBe(true);
   });
