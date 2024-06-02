@@ -33,6 +33,7 @@ import { Player, asPlayerIndex, asPlayerKey, pickRandomPlayer } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
 import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
+import { createDummyAgent } from './agent';
 
 export type GameState = {
   logs: LogEvent[];
@@ -50,39 +51,9 @@ export type GameState = {
   primesByPlayerKey: Record<string, number[]>;
 };
 
-export type Card = {
-  name: 'a';
-};
+export const randomizeCollabParis = () => {};
 
 // model ownership of tiles at game for easier source of truth
-
-// interface for easily replaceable with actionable for debug
-const createDummyAi = () => {
-  return {
-    deriveSyncActions: (
-      grid: Grid,
-      playerKey: string,
-      scoreByResource: any,
-    ) => {
-      console.log('dummy ai send');
-
-      const energy = scoreByResource[TileResource.Energy];
-
-      const isNuclear = Math.random() > 0.5;
-
-      const buildAction = createBuildAction(grid, playerKey);
-
-      const oppnentPlayerKey = pickRandomPlayer(3);
-      const nuclearAction = createNuclearAction(
-        grid,
-        playerKey,
-        oppnentPlayerKey,
-      );
-
-      return [isNuclear ? nuclearAction : buildAction];
-    },
-  };
-};
 
 // pop up player actions onto game states
 
@@ -95,16 +66,14 @@ export const playerMachine = createMachine(
       currentTurnMetadata: {} as any,
       playerKey: '',
       playerActions: [] as Action[],
-      hand: [] as Card[],
     },
     states: {
       waiting: {
-        entry: 'startPlayer',
+        entry: 'startGame',
         on: {
           DRAW: {
             target: 'playing',
             actions: assign({
-              // hand: ({ context, event }) => [...context.hand, ...event.cards],
               playerActions: ({ context, event, self }) => {
                 const { id: playerKey } = self;
                 const {
@@ -121,12 +90,12 @@ export const playerMachine = createMachine(
 
                 const { turn } = context.currentTurnMetadata;
 
-                const dummyAi = createDummyAi();
+                const agent = createDummyAgent();
 
                 const syncActions =
                   scoreByResource[TileResource.Energy] < 5
                     ? [createNoopAction(playerKey)]
-                    : (dummyAi.deriveSyncActions(
+                    : (agent.deriveSyncActions(
                         grid,
                         playerKey,
                         scoreByResource,
@@ -161,8 +130,8 @@ export const playerMachine = createMachine(
   },
   {
     actions: {
-      startPlayer: ({ context, self }) => {
-        console.log('startPlayer');
+      startGame: ({ context, self }) => {
+        console.log('startGame');
       },
       takeAction: sendParent(({ context }) => ({
         type: 'playerAction',
