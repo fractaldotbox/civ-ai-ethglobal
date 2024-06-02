@@ -262,7 +262,7 @@ export const actionStrategyAsync = {
     console.log('playerKey, research', n);
 
     // TODO iterate start
-    const { results: primes } = await findNPrimes(n, n % 100);
+    const { results: primes } = await findNPrimes(n, n - ((n % 100) + 100));
 
     console.log('playerKey, research done', primes);
 

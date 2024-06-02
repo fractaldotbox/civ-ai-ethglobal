@@ -23,12 +23,15 @@ export const createDummyAgent = (playerKey: string) => {
     deriveSyncActions: (gameState: GameState) => {
       console.log('dummy ai send', playerKey);
 
-      const { grid, scoreByResourceByPlayerKey } = gameState;
+      const { grid, scoreByResourceByPlayerKey, researchCountByPlayerKey } =
+        gameState;
 
       const scoreByResource = scoreByResourceByPlayerKey?.[playerKey];
       // const energy = scoreByResource[TileResource.Energy];
 
-      const isNuclear = Math.random() > 0.5;
+      const isUnlocked = researchCountByPlayerKey?.[playerKey] >= 2;
+
+      const isNuclear = isUnlocked && Math.random() > 0.5;
 
       const buildAction = createBuildAction(grid, playerKey);
 

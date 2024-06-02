@@ -16,7 +16,7 @@ export async function GET(req: any) {
 
   const start = parseInt(nextUrl.searchParams.get('start'), 10) || 0;
 
-  console.log('find prime n=', n);
+  console.log('find prime n=', n, 'start=', start);
 
   const hash = '20f361';
   const command = `/usr/local/bin/hive run github.com/debuggingfuture/primesieve:${hash} -i n=${n}`;

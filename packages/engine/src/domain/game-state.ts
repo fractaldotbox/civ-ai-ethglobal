@@ -52,6 +52,7 @@ export type GameState = {
   scoreCurrentTurnByPlayerKey: Record<string, { [k in TileResource]: number }>;
   players: any[];
   grid: Grid;
+  researchCountByPlayerKey: Record<string, number>;
   primesByPlayerKey: Record<string, number[]>;
   region1: {
     name: string;
@@ -130,7 +131,7 @@ export const createPlayerMachine = (
                 const scoreByResource = scoreByResourceByPlayerKey[playerKey];
                 // update turn
 
-                const { turn } = context.currentTurnMetadata;
+                const { turn } = currentTurnMetadata;
 
                 const agent = createDummyAgent(playerKey);
 
@@ -150,9 +151,18 @@ export const createPlayerMachine = (
 
                 playerActions.push(...syncActions);
 
-                console.log('research-turn', playerKey, playerIndex, turn % 3);
+                console.log(
+                  'research-turn',
+                  playerKey,
+                  playerIndex,
+                  turn,
+                  turn % 3,
+                );
                 if (isResearchTurn) {
-                  const researchAction = createResearchAction(turn, playerKey);
+                  const researchAction = createResearchAction(
+                    turn + 1,
+                    playerKey,
+                  );
                   playerActions.push(researchAction);
                 }
                 console.log('playerActions', playerActions);
@@ -229,11 +239,10 @@ const playerEntry =
 const createSendToPlayer =
   (playerIndex: number) =>
   async ({ context }: { context: any }) => {
-    const { grid } = context;
     console.log('sendToPlayer' + playerIndex);
     await context.players[playerIndex - 1].ref.send({
       type: 'DRAW',
-      gameState: context,
+      gameState: { ...context },
     });
   };
 
@@ -268,6 +277,10 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         agentRunsByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
           () => ({}),
+        ),
+        researchCountByPlayerKey: createByPlayerKey(
+          gameSeed.playerCount,
+          () => 0,
         ),
         primesByPlayerKey: createByPlayerKey(gameSeed.playerCount, () => []),
         // TODO metadata injected
@@ -311,6 +324,8 @@ export const createGameMachine = (gameSeed: GameSeed) => {
             const { playerKey, primes } = event;
 
             console.log('research results', playerKey, primes);
+
+            context.researchCountByPlayerKey[playerKey] += 1;
 
             context.primesByPlayerKey[playerKey] = _.union(
               primes,
@@ -570,33 +585,35 @@ export const createGameMachine = (gameSeed: GameSeed) => {
                 solarIrradiance: context.region2.solar_irradiance,
               }),
             );
-            context.currentTurnMetadata.turn =
-              context.currentTurnMetadata.turn + 1;
+          }
 
-            // TODO extract
+          console.log('increment turn');
+          context.currentTurnMetadata.turn =
+            context.currentTurnMetadata.turn + 1;
 
-            const winner = _.findKey(
-              primesByPlayerKey,
-              (primes) => primes.length > 0,
-            );
+          // TODO extract
 
-            console.log('winner', winner);
-            if (winner) {
-              context.winner = winner;
-              self.send({
-                type: 'END_GAME',
-                playerKey: winner,
-              });
-              return;
-            }
+          const winner = _.findKey(
+            primesByPlayerKey,
+            (primes) => primes.length > 1000,
+          );
 
-            if (context.currentTurnMetadata.turn > 20) {
-              console.log('send end');
-              context.winner = 'player-1';
-              self.send({
-                type: 'END_GAME',
-              });
-            }
+          console.log('winner', winner);
+          if (winner) {
+            context.winner = winner;
+            self.send({
+              type: 'END_GAME',
+              playerKey: winner,
+            });
+            return;
+          }
+
+          if (context.currentTurnMetadata.turn > 20) {
+            console.log('send end');
+            context.winner = 'player-1';
+            self.send({
+              type: 'END_GAME',
+            });
           }
         },
 
