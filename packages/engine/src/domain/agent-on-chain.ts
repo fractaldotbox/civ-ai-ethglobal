@@ -222,6 +222,8 @@ export const getAgentClient = (address: string): any => {
   const gameMasterKey =
     '0x3db76cdd104b07bebf2221076fab7485c03b59f5af25322497763a52b05bd94c';
 
+  // const gameMasterKey = process.env.NEXT_PUBLIC_GAME_MASTER_PRIVATE_KEY;
+
   const contractAddress =
     '0x8Cd43aaA0c30E9ED751A4e2F05101D0f4eC6cdC8' as address;
 

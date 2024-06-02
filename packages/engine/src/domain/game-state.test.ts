@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'vitest';
 
 import { createActor, assign } from 'xstate';
-import { playerMachine, createGameMachine } from './game-state';
+import { createPlayerMachine, createGameMachine } from './game-state';
 import { TileBuilding, TileResource } from './grid';
 import { createGameState, gameSeedFixture } from './game-state.fixture';
 
 describe('Game State Machine', () => {
-  // test('playerMachine', ()=>{
+  // test('createPlayerMachine', ()=>{
 
-  //     const player = createActor(playerMachine);
+  //     const player = createActor(createPlayerMachine);
 
   //     player.subscribe((snapshot) => {
   //         console.log(snapshot);

@@ -26,7 +26,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     const gameSeed = {
         rowSize: 10,
         columnSize: 10,
-        playerCount: 3,
+        playerCount: 4,
         tileResourceMax: 3,
         tileByType: {
             [TileResource.Energy]: {

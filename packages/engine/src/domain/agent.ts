@@ -61,7 +61,7 @@ export const createAgent = async (playerKey: string, address: string) => {
       });
       const results = await client.chat(prompt);
 
-      console.log(results);
+      console.log('deriveNextActions', results);
       // console.log('runId', runId);
       // const messages = await client.getMessageHistoryContents(runId);
 

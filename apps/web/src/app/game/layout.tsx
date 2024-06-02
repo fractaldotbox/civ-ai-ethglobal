@@ -1,4 +1,5 @@
 'use client';
+import _ from 'lodash';
 import { LABEL_BY_TILE_RESOURCE, TileResource } from "@repo/engine";
 import { GameContextProvider, useGameContext } from "../../components/GameContextProvider";
 import GameBar from "../../components/GameBar";
@@ -13,9 +14,8 @@ const PlayerBar = () => {
         return
     }
 
-    const { currentTurnMetadata, scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } = gameState;
+    const { currentTurnMetadata, scoreByResourceByPlayerKey, players, scoreCurrentTurnByPlayerKey } = gameState;
 
-    const playerKeys = Object.keys(scoreByResourceByPlayerKey);
 
 
     console.log('scoreByResourceByPlayerKey', scoreByResourceByPlayerKey)
@@ -28,12 +28,12 @@ const PlayerBar = () => {
                     <button className="btn">{currentTurnMetadata.turn}</button>
                 </div>
                 {
-                    playerKeys.map((player, i) => (
+                    players.map((player, i) => (
                         <PlayerStat
                             key={"player-" + i}
-                            player={{
-                                playerIndex: i + 1,
-                            }}
+                            player={
+                                _.omit(player, ['ref'])
+                            }
                             scoreByResourceByPlayerKey={scoreByResourceByPlayerKey}
                             scoreCurrentTurnByPlayerKey={scoreCurrentTurnByPlayerKey}
                         />

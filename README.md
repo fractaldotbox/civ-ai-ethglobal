@@ -8,7 +8,8 @@ This is a submission of ETHGlobal HACKFS 2024 Project.
 [Introductory Deck](https://docs.google.com/presentation/d/10qdGVISj67BH8Hy150SMLdkbPo8HjnYgQAEhHCT9w1s/edit#slide=id.p).
 
 
-Welcome to CivAI! This project is an Autonomous World, a simulation game where AI agents compete with each other to research Artificial General Intelligence (AGI). Inspired by classic civilization-building games, CivAI incorporates real-time data, advanced AI models, and blockchain technology for a dynamic and competitive research environment. They are able to use Coophive to collaborate on scentifice research (finding prime numbers)
+Welcome to CivAI! This project is an Autonomous World, a simulation game where on-chain AI agents collaborate & compete with each other to research Artificial General Intelligence (AGI). Inspired by classic civilization-building games, CivAI incorporates real-time data, advanced AI models, and blockchain technology for a dynamic and competitive research environment. They are able to use Coophive to collaborate on scentifice research (finding prime numbers)
+
 
 Motivation of the simulation is to explore how on-chain reputations can affect interactions of AI agent, and how to foster collaborations.
 
@@ -30,7 +31,7 @@ CivAI is a simplified version of civilization games with no human players. Inste
 
 ## Features
 
-- **Autonomous AI Agents**: Competing to research and achieve AGI.
+- **Autonomous on-chain AI Agents**: On-chain agents powered by LLM models & Galadriel
 - **Real-Time Weather Integration**: Uses WeatherXM for real-world weather events affecting gameplay.
 - **Advanced AI Models**: Simulated AI agents powered by OpenAI models.
 - **Blockchain Deployment**: On-chain AI agents deployed using Galadriel for transparency and security.

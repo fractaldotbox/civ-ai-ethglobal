@@ -33,7 +33,7 @@ import { Player, asPlayerIndex, asPlayerKey, pickRandomPlayer } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
 import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
-import { createDummyAgent } from './agent';
+import { createAgent, createDummyAgent } from './agent';
 
 export type GameState = {
   logs: LogEvent[];
@@ -54,28 +54,57 @@ export type GameState = {
 
 export const randomizeCollabParis = () => {};
 
+const PLAYER_SEEDS = [
+  {
+    name: 'Nuclear Gandhi',
+    address: '0x',
+  },
+  {
+    name: 'Civilized Zuckberg',
+    address: '0x',
+  },
+  {
+    name: 'Pacifist Vitalik',
+    address: '0x',
+  },
+  {
+    name: 'Ironman Musk',
+    address: '0x',
+  },
+];
+
+const initAgent = () => {};
+
 // model ownership of tiles at game for easier source of truth
 
 // pop up player actions onto game states
 
 // Define the state machine for a player
-export const playerMachine = createMachine(
-  {
-    id: 'player',
-    initial: 'waiting',
-    context: {
-      currentTurnMetadata: {} as any,
-      playerKey: '',
-      playerActions: [] as Action[],
-    },
-    states: {
-      waiting: {
-        entry: 'startGame',
-        on: {
-          DRAW: {
-            target: 'playing',
-            actions: assign({
-              playerActions: ({ context, event, self }) => {
+export const createPlayerMachine = (
+  player: Partial<Player>,
+  gameState: GameState,
+) =>
+  createMachine(
+    {
+      id: 'player',
+      initial: 'waiting',
+      context: {
+        lastGameState: { ...gameState } as GameState,
+        currentTurnMetadata: {} as any,
+        playerKey: '',
+        name: player.name,
+        address: player.address,
+        playerActions: [] as Action[],
+      },
+      states: {
+        waiting: {
+          entry: 'startGame',
+          on: {
+            DRAW: {
+              target: 'playing',
+              // invoke
+              actions: assign(({ context, event, self }): any => {
+                const playerActions = [];
                 const { id: playerKey } = self;
                 const {
                   gameState,
@@ -100,6 +129,7 @@ export const playerMachine = createMachine(
                   scoreByResource[TileResource.Energy] < 5
                     ? [createNoopAction(playerKey)]
                     : (agent.deriveSyncActions(gameState) as Action[]);
+                playerActions.push(...syncActions);
 
                 const playerIndex = asPlayerIndex(playerKey);
 
@@ -108,58 +138,71 @@ export const playerMachine = createMachine(
                 const isResearchTurn =
                   ((turn % 3) as number) + 1 === playerIndex;
 
+                // cannot async
+
                 console.log('research-turn', playerKey, playerIndex, turn % 3);
                 if (isResearchTurn) {
                   const researchAction = createResearchAction(turn, playerKey);
-                  return [...syncActions, researchAction];
+                  playerActions.push(researchAction);
                 }
-                return syncActions;
-              },
-            }),
+                console.log('playerActions', playerActions);
+
+                return {
+                  playerActions,
+                };
+              }),
+            },
           },
         },
-      },
-      playing: {
-        entry: ['takeAction', 'takeResearchAction'],
-        always: 'waiting',
-      },
-      done: {
-        type: 'final',
-      },
-    },
-  },
-  {
-    actions: {
-      startGame: ({ context, self }) => {
-        console.log('startGame');
-
-        // Pre-trigger first trun
-      },
-      takeAction: sendParent(({ context }) => ({
-        type: 'playerAction',
-        data: {
-          playerAction: context.playerActions[0],
+        playing: {
+          entry: ['takeAction', 'takeResearchAction'],
+          always: 'waiting',
         },
-      })),
-      takeResearchAction: sendParent(({ context }) => {
-        const playerAction = context.playerActions[1];
-        if (playerAction) {
-          return {
-            type: 'playerAction',
-            data: {
-              playerAction,
-            },
-          };
-        }
-
-        return {
-          type: 'empty',
-          data: {},
-        };
-      }),
+        done: {
+          type: 'final',
+        },
+      },
     },
-  },
-);
+    {
+      actions: {
+        startGame: assign(async ({ context, self }): any => {
+          console.log('startGame');
+
+          // TODO ensure async otherwise race conditions
+          // const agent = await createAgent(
+          //   self.id,
+          //   '0xfA48970C65616d91891A2E0e33D17F0e7189c5D8',
+          // );
+
+          // await agent.deriveNextActions(context.lastGameState);
+
+          // Pre-trigger first trun
+        }),
+        takeAction: sendParent(({ context }) => ({
+          type: 'playerAction',
+          data: {
+            playerAction: context.playerActions[0],
+          },
+        })),
+        takeResearchAction: sendParent(({ context }) => {
+          const playerAction = context.playerActions?.[1];
+          if (playerAction) {
+            return {
+              type: 'playerAction',
+              data: {
+                playerAction,
+              },
+            };
+          }
+
+          return {
+            type: 'empty',
+            data: {},
+          };
+        }),
+      },
+    },
+  );
 
 const playerEntry =
   (id: number) =>
@@ -321,14 +364,27 @@ export const createGameMachine = (gameSeed: GameSeed) => {
       },
       entry: [
         assign({
-          players: ({ spawn }) =>
-            _.range(1, 3).map((i) => {
+          players: ({ context, spawn }) =>
+            PLAYER_SEEDS.map((playerSeed, i) => {
               // TODO inject metadata
-              const playerIndex = i;
+              const playerIndex = i + 1;
+              const { name } = playerSeed;
               const playerKey = asPlayerKey(playerIndex);
-              const ref = spawn(playerMachine, { id: playerKey });
+              const ref = spawn(
+                createPlayerMachine(
+                  {
+                    ...playerSeed,
+                  },
+                  context,
+                ),
+                {
+                  id: playerKey,
+                },
+              );
+
               return {
                 playerId: playerIndex,
+                name,
                 playerKey,
                 ref,
               };
@@ -337,7 +393,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
       ],
       states: {
         start: {
-          entry: ['wrapUpTurn'],
+          entry: ['initGame'],
           on: {
             NEXT: 'player1',
           },
@@ -356,6 +412,12 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         },
         player3: {
           entry: [playerEntry(3), createSendToPlayer(3)],
+          on: {
+            NEXT: 'player4',
+          },
+        },
+        player4: {
+          entry: [playerEntry(4), createSendToPlayer(4)],
           on: {
             NEXT: 'endTurn',
           },
@@ -382,6 +444,17 @@ export const createGameMachine = (gameSeed: GameSeed) => {
     },
     {
       actions: {
+        initGame: ({ context }) => {
+          const template = STANDARD_GAME_EVENT_TEMPLATES[0];
+          if (context.currentTurnMetadata.turn === 0) {
+            context.events.push(template());
+          }
+          // empty grid to force sum
+          const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } =
+            calculateScoreByPlayer([[]], context.scoreByResourceByPlayerKey);
+
+          context.scoreByResourceByPlayerKey = scoreByResourceByPlayerKey;
+        },
         wrapUpTurn: ({ context, self }) => {
           console.log('wrap up turn', context?.currentTurnMetadata?.turn);
 
@@ -391,11 +464,6 @@ export const createGameMachine = (gameSeed: GameSeed) => {
 
           context.scoreByResourceByPlayerKey = scoreByResourceByPlayerKey;
           context.scoreCurrentTurnByPlayerKey = scoreCurrentTurnByPlayerKey;
-
-          const template = STANDARD_GAME_EVENT_TEMPLATES[0];
-          if (context.currentTurnMetadata.turn === 0) {
-            context.events.push(template());
-          }
 
           context.currentTurnMetadata.turn =
             context.currentTurnMetadata.turn + 1;
