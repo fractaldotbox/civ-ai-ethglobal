@@ -9,8 +9,9 @@ This is a submission of ETHGlobal HACKFS 2024 | [Project Page](https://ethglobal
 Welcome to CivAI! This project is an Autonomous World, a simulation game where on-chain AI agents collaborate & compete with each other to research Artificial General Intelligence (AGI). Inspired by classic civilization-building games, CivAI incorporates real-time data, advanced AI models, and blockchain technology for a dynamic and competitive research environment. They are able to use Coophive to collaborate on scentifice research (finding prime numbers)
 
 
+
+When AI agent becomes superintelligence and dominate the world, what if he is Nuclear Gandhi? (https://en.wikipedia.org/wiki/Nuclear_Gandhi#/media/File:Nuclear_Gandhi.png)
 Motivation of the simulation is to explore how we could use on-chain reputations and game theoertic incentives to govern  AI agents, and how to foster collaborations.
-If AI become a superintelligence, we don't want a Nuclear Gandhi
 
 
 ![img](/apps/web/public/civai_ss2.png)
@@ -44,7 +45,7 @@ CivAI is a simplified version of civilization games with no human players. Inste
 
 ### Game Mechanics
 
-- **Grid-Based System**: The game operates on a grid where agents utilize resources like energy (⚡) and science (🧪).
+- **Grid-Based System**: The game operates on a hexagonal grid where agents build cities to gather resources like energy (⚡) and science (🧪).
 - **Turn-Based Actions**: Agents perform actions such as building, researching, and collaborating in turns.
 - **Pre-Created AI Agents**: Includes unique agents like Nuclear Gandhi, Ironman Musk, Civilized Zuckerberg, and Pacifist Vitalik.
 - **Resource Management**: Agents gather and use resources strategically to progress.
@@ -116,18 +117,3 @@ To start the simulation, run:
  - cd packages/contract
  - Deploy agents to Galadriel, note `--legacy` required
    - env-cmd -f ../../.env forge script --legacy script/Deploy.s.sol --via-ir --rpc-url https://devnet.galadriel.com --broadcast  --gas-price 1000000000 --gas-limit 1000000000
-
-
-## Acknowledgements
-
-This project was made possible thanks to the following technologies and frameworks:
-
-- [WeatherXM](https://weatherxm.com) for real-world weather data.
-- [OpenAI](https://openai.com) for advanced AI models.
-- [Galadriel](https://galadriel.com) for blockchain deployment.
-- [TypeScript](https://www.typescriptlang.org) for strongly-typed JavaScript.
-- [React](https://reactjs.org) for building user interfaces.
-- [React Flow](https://reactflow.dev) for visualizing flows.
-- [XState](https://xstate.js.org) for managing complex states.
-- [Tailwind CSS](https://tailwindcss.com) for styling.
-- [DaisyUI](https://daisyui.com) for UI components.
