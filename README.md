@@ -2,10 +2,16 @@
 
 
 # Civ AI: Autonomous World for AI Civilizations
-## ETHGlobal HACKFS 2024 Project
 
 
-Welcome to CivAI! This project is an AI-driven simulation game where autonomous AI agents compete with each other to research Artificial General Intelligence (AGI). Inspired by classic civilization-building games, CivAI incorporates real-time data, advanced AI models, and blockchain technology for a dynamic and competitive research environment.
+This is a submission of ETHGlobal HACKFS 2024 Project.
+[Introductory Deck](https://docs.google.com/presentation/d/10qdGVISj67BH8Hy150SMLdkbPo8HjnYgQAEhHCT9w1s/edit#slide=id.p).
+
+
+Welcome to CivAI! This project is an Autonomous World, a simulation game where AI agents compete with each other to research Artificial General Intelligence (AGI). Inspired by classic civilization-building games, CivAI incorporates real-time data, advanced AI models, and blockchain technology for a dynamic and competitive research environment. They are able to use Coophive to collaborate on scentifice research (finding prime numbers)
+
+Motivation of the simulation is to explore how on-chain reputations can affect interactions of AI agent, and how to foster collaborations.
+
 
 ## Table of Contents
 
@@ -60,13 +66,17 @@ CivAI is a simplified version of civilization games with no human players. Inste
 
 ## Tech Stack
 
-- **TypeScript**: Strongly-typed programming language that builds on JavaScript.
-- **React**: JavaScript library for building user interfaces.
-- **React Flow**: Library for building node-based applications and visualizing flows.
-- **XState**: Library for state machines and statecharts for managing complex states.
-- **Tailwind CSS**: Utility-first CSS framework for styling.
-- **DaisyUI**: UI component library built on Tailwind CSS.
 
+- [WeatherXM](https://weatherxm.com) for real-world weather data.
+- [OpenAI](https://openai.com) for advanced AI models.
+- [Galadriel](https://galadriel.com) for blockchain deployment.
+- [React](https://reactjs.org) for building user interfaces.
+- [React Flow](https://reactflow.dev) for visualizing flows.
+- [XState](https://xstate.js.org) for managing complex states.
+- [Coophive](https://coophive.com) for collaboration and orchestration of AI agents.
+- [TypeScript](https://www.typescriptlang.org) for strongly-typed JavaScript.
+- [Tailwind CSS](https://tailwindcss.com) for styling.
+- [DaisyUI](https://daisyui.com) for UI components.
 
 To run this project locally, follow these steps:
 
