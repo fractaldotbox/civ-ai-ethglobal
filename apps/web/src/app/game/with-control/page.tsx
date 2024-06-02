@@ -169,7 +169,8 @@ export default function GamePage(): JSX.Element {
                 id: 'weather=legend-1',
                 type: 'weather-legend',
                 data: {
-                    location: 'Paris'
+                    location: 'Singapore, SG',
+                    id: '876526addffffff'
                 },
                 position: {
                     x: -350,
@@ -180,7 +181,8 @@ export default function GamePage(): JSX.Element {
                 id: 'weather=legend-2',
                 type: 'weather-legend',
                 data: {
-                    location: 'Berlin'
+                    location: 'Longtan District, TW',
+                    id: '876526addffffff'
                 },
                 position: {
                     x: -350,
@@ -188,7 +190,6 @@ export default function GamePage(): JSX.Element {
                 },
             }
         ]
-
         // Add more countries as needed
 
         setNodes([...weatherNodes, ...weatherLegendNodes, ...nodes]);
