@@ -33,7 +33,6 @@ import { Player, asPlayerIndex, asPlayerKey, pickRandomPlayer } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
 import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
-import { randomCell } from './cell';
 import { getWeather } from './weather';
 import { regionBoost } from './grid-action';
 import { createAgent, createDummyAgent } from './agent';
@@ -47,7 +46,6 @@ export type GameState = {
     playerKey: string;
   };
   agentRunsByPlayerKey: Record<string, any[]>;
-  playerNameByKey: Record<string, string>;
   scoreByResourceByPlayerKey: Record<string, { [k in TileResource]: number }>;
   scoreCurrentTurnByPlayerKey: Record<string, { [k in TileResource]: number }>;
   players: any[];
@@ -55,11 +53,13 @@ export type GameState = {
   researchCountByPlayerKey: Record<string, number>;
   primesByPlayerKey: Record<string, number[]>;
   region1: {
+    id?: string;
     name: string;
     wind_speed: number;
     solar_irradiance: number;
   };
   region2: {
+    id?: string;
     name: string;
     wind_speed: number;
     solar_irradiance: number;
@@ -262,6 +262,9 @@ export const createGameMachine = (gameSeed: GameSeed) => {
   console.log('createGameMachine');
   const grid = generateRandomGrid(gameSeed);
 
+  const { regions = [] } = gameSeed;
+
+  const [region1, region2] = regions;
   return createMachine(
     {
       id: 'game',
@@ -301,12 +304,12 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         ),
         grid,
         region1: {
-          name: 'region1',
+          ...region1,
           wind_speed: 0,
           solar_irradiance: 0,
         },
         region2: {
-          name: 'region2',
+          ...region2,
           wind_speed: 0,
           solar_irradiance: 0,
         },
@@ -324,8 +327,6 @@ export const createGameMachine = (gameSeed: GameSeed) => {
             const { playerKey, primes } = event;
 
             console.log('research results', playerKey, primes);
-
-            context.researchCountByPlayerKey[playerKey] += 1;
 
             context.primesByPlayerKey[playerKey] = _.union(
               primes,
@@ -379,22 +380,30 @@ export const createGameMachine = (gameSeed: GameSeed) => {
             }
 
             if (playerAction.type === ActionType.Research) {
+              const score = context.scoreByResourceByPlayerKey[playerKey];
+
+              const energyCurrent =
+                context.scoreByResourceByPlayerKey?.[playerKey]?.[
+                  TileResource.Energy
+                ];
+
+              if (energyCurrent < 5) {
+                return;
+              }
+
+              context.researchCountByPlayerKey[playerKey] += 1;
+
               const { results } = await applyAsyncAction(
                 context.grid,
                 playerAction,
               )!;
 
-              const { scoreByResourceByPlayerKey } = context;
-
               const { n } = payload;
 
-              const score = scoreByResourceByPlayerKey[playerKey];
-
-              const energyCurrent =
-                scoreByResourceByPlayerKey?.[playerKey]?.[TileResource.Energy];
-
-              if (scoreByResourceByPlayerKey[playerKey]) {
-                scoreByResourceByPlayerKey[playerKey][TileResource.Energy] = 1;
+              if (context.scoreByResourceByPlayerKey[playerKey]) {
+                context.scoreByResourceByPlayerKey[playerKey][
+                  TileResource.Energy
+                ] -= 5;
               }
 
               if (results) {
@@ -519,10 +528,9 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           if (context.currentTurnMetadata.turn === 0) {
             console.log('start');
             // assign region
-            const region1 = randomCell();
-            const region2 = randomCell();
-            context.region1.name = region1.name;
-            context.region2.name = region2.name;
+
+            const { region1, region2 } = context;
+            // TODO by rows
 
             // get the weather of the 2 random cells
             getWeather(region1.id).then((value) => {

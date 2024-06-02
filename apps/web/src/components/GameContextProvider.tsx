@@ -1,7 +1,7 @@
-import { GameState, TileResource, createGameMachine, generateRandomGrid } from '@repo/engine';
+import { GameState, REGIONS, TileResource, createGameMachine, generateRandomGrid } from '@repo/engine';
 import React, { createContext, useEffect, useState } from 'react';
 import { createActor } from 'xstate';
-
+import _ from 'lodash';
 import { useActor, useMachine, useSelector } from '@xstate/react';
 
 export type GameStateWrapper = {
@@ -28,6 +28,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         columnSize: 10,
         playerCount: 4,
         tileResourceMax: 3,
+        regions: _.take(_.shuffle(REGIONS), 2),
         tileByType: {
             [TileResource.Energy]: {
                 total: 100
@@ -53,7 +54,7 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
         if (fn) {
             setAutoPlay(setInterval(() => {
                 fn();
-            }, 1000));
+            }, 500));
         } else {
             clearInterval(autoPlay as NodeJS.Timeout);
             setAutoPlay(undefined);

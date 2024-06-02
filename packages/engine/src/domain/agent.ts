@@ -29,6 +29,11 @@ export const createDummyAgent = (playerKey: string) => {
       const scoreByResource = scoreByResourceByPlayerKey?.[playerKey];
       // const energy = scoreByResource[TileResource.Energy];
 
+      console.log(
+        'researchCountByPlayerKey',
+        researchCountByPlayerKey?.[playerKey],
+      );
+
       const isUnlocked = researchCountByPlayerKey?.[playerKey] >= 2;
 
       const isNuclear = isUnlocked && Math.random() > 0.5;

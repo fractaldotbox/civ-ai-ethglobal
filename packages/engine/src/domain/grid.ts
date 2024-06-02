@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Region } from './region';
 
 export type Tile = {
   i: number;
@@ -167,6 +168,7 @@ export const genearteGridWithOverlappingTiles = (
 export type GameSeed = {
   rowSize: number;
   columnSize: number;
+  regions: Region[];
   playerCount: number;
   tileResourceMax: number;
   tileByType: {

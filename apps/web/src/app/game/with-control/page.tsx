@@ -136,7 +136,7 @@ export default function GamePage(): JSX.Element {
     useEffect(() => {
         if (!gameState) return;
         // TODO use snapshot
-        const { grid, } = gameState;
+        const { grid, region1, region2 } = gameState;
         console.log('nodes update')
         const nodes = mapSnapshotAsNodes(
             {
@@ -169,11 +169,10 @@ export default function GamePage(): JSX.Element {
                 id: 'weather=legend-1',
                 type: 'weather-legend',
                 data: {
-                    location: 'Singapore, SG',
-                    id: '876526addffffff'
+                    ...region1
                 },
                 position: {
-                    x: -350,
+                    x: -380,
                     y: 200,
                 },
             },
@@ -181,11 +180,10 @@ export default function GamePage(): JSX.Element {
                 id: 'weather=legend-2',
                 type: 'weather-legend',
                 data: {
-                    location: 'Longtan District, TW',
-                    id: '876526addffffff'
+                    ...region2
                 },
                 position: {
-                    x: -350,
+                    x: -380,
                     y: 700 + getOffsetY(5, grid.length),
                 },
             }
@@ -202,7 +200,7 @@ export default function GamePage(): JSX.Element {
         return (
             <div
                 className="text-4xl p-2">
-                {data?.location}
+                {data?.name}
             </div>
         )
     }
