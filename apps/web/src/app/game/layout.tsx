@@ -42,7 +42,7 @@ const PlayerBar = () => {
                 }
             </div>
             <div className="flex-end  justify-around flex flex-row items-center px-2">
-                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document.getElementById('modal_prompt').showModal()}>Prompt History</button>
+                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document.getElementById('modal_prompt').showModal()}>Prompts</button>
                 <button className="btn bg-blue-500 text-white mx-2" onClick={() => document.getElementById('my_modal_1').showModal()}>Research</button>
             </div>
         </div>

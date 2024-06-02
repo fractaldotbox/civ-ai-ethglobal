@@ -33,14 +33,10 @@ import { Player, asPlayerIndex, asPlayerKey, pickRandomPlayer } from './player';
 import { calculateScoreByPlayer } from './scorer';
 import { LogEvent } from './log';
 import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
-<<<<<<< HEAD
 import { randomCell } from './cell';
 import { getWeather } from './weather';
 import { regionBoost } from './grid-action';
-import { createDummyAgent } from './agent';
-=======
 import { createAgent, createDummyAgent } from './agent';
->>>>>>> main
 
 export type GameState = {
   logs: LogEvent[];
@@ -58,14 +54,14 @@ export type GameState = {
   grid: Grid;
   primesByPlayerKey: Record<string, number[]>;
   region1: {
-    'name': string,
-    'wind_speed': number,
-    'solar_irradiance': number
+    name: string;
+    wind_speed: number;
+    solar_irradiance: number;
   };
   region2: {
-    'name': string,
-    'wind_speed': number,
-    'solar_irradiance': number
+    name: string;
+    wind_speed: number;
+    solar_irradiance: number;
   };
 };
 
@@ -123,11 +119,7 @@ export const createPlayerMachine = (
               actions: assign(({ context, event, self }): any => {
                 const playerActions = [];
                 const { id: playerKey } = self;
-                const {
-                  gameState,
-                  // currentTurnMetadata,
-                  // scoreByResourceByPlayerKey,
-                } = event;
+                const { gameState } = event;
 
                 const { currentTurnMetadata, scoreByResourceByPlayerKey } =
                   gameState;
@@ -145,11 +137,7 @@ export const createPlayerMachine = (
                 const syncActions =
                   scoreByResource[TileResource.Energy] < 5
                     ? [createNoopAction(playerKey)]
-                    : (dummyAi.deriveSyncActions(
-                      grid,
-                      playerKey,
-                      scoreByResource,
-                    ) as Action[]);
+                    : (agent.deriveSyncActions(gameState) as Action[]);
 
                 const playerIndex = asPlayerIndex(playerKey);
 
@@ -159,6 +147,8 @@ export const createPlayerMachine = (
                   ((turn % 3) as number) + 1 === playerIndex;
 
                 // cannot async
+
+                playerActions.push(...syncActions);
 
                 console.log('research-turn', playerKey, playerIndex, turn % 3);
                 if (isResearchTurn) {
@@ -226,49 +216,26 @@ export const createPlayerMachine = (
 
 const playerEntry =
   (id: number) =>
-<<<<<<< HEAD
-    ({ context }: { context: any }) => {
-      console.log('player entry', id);
-      context.currentTurnMetadata.playerKey = asPlayerKey(id);
-
-      // only if not exists
-      // const player = createActor(playerMachine);
-      // context.players.push(player);
-      // player.start();
-    };
-
-const createSendToPlayer =
-  (playerIndex: number) =>
-    async ({ context }: { context: any }) => {
-      const { grid } = context;
-      console.log('sendToPlayer' + playerIndex);
-      await context.players[playerIndex - 1].send({
-        type: 'DRAW',
-        scoreByResourceByPlayerKey: context.scoreByResourceByPlayerKey,
-        cards: context.deck.slice(0, 3),
-        grid,
-        currentTurnMetadata: context.currentTurnMetadata,
-      });
-    };
-=======
   ({ context }: { context: any }) => {
     console.log('player entry', id);
     context.currentTurnMetadata.playerKey = asPlayerKey(id);
+
+    // only if not exists
+    // const player = createActor(playerMachine);
+    // context.players.push(player);
+    // player.start();
   };
 
 const createSendToPlayer =
   (playerIndex: number) =>
   async ({ context }: { context: any }) => {
+    const { grid } = context;
     console.log('sendToPlayer' + playerIndex);
-    await context.players[playerIndex - 1]?.ref.send({
+    await context.players[playerIndex - 1].ref.send({
       type: 'DRAW',
       gameState: context,
-      // scoreByResourceByPlayerKey: context.scoreByResourceByPlayerKey,
-      // grid,
-      // currentTurnMetadata: context.currentTurnMetadata,
     });
   };
->>>>>>> main
 
 const createByPlayerKey = (
   playerCount: number,
@@ -320,20 +287,16 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           }),
         ),
         grid,
-<<<<<<< HEAD
-        deck,
         region1: {
-          'name': 'region1',
-          'wind_speed': 0,
-          'solar_irradiance': 0
+          name: 'region1',
+          wind_speed: 0,
+          solar_irradiance: 0,
         },
         region2: {
-          'name': 'region2',
-          'wind_speed': 0,
-          'solar_irradiance': 0
+          name: 'region2',
+          wind_speed: 0,
+          solar_irradiance: 0,
         },
-=======
->>>>>>> main
       } as GameState,
       on: {
         emitLog: {
@@ -354,15 +317,18 @@ export const createGameMachine = (gameSeed: GameSeed) => {
               context.primesByPlayerKey[playerKey],
             );
             // not emit log as delay
-          })
+          }),
         },
         weatherUpdated: {
-          actions: assign(({ context, event, self }): any => {
-            const { regionId, weather } = event;
-
-            context[`region${regionId}`]['wind_speed'] = weather[0].current_weather.wind_speed;
-            context[`region${regionId}`]['solar_irradiance'] = weather[0].current_weather.solar_irradiance;
-          })
+          actions: assign(
+            ({ context, event }: { context: any; event: any }): any => {
+              const { regionId, weather } = event;
+              context[`region${regionId}`]['wind_speed'] =
+                weather[0].current_weather.wind_speed;
+              context[`region${regionId}`]['solar_irradiance'] =
+                weather[0].current_weather.solar_irradiance;
+            },
+          ),
         },
 
         playerAction: {
@@ -535,11 +501,8 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           context.scoreByResourceByPlayerKey = scoreByResourceByPlayerKey;
           context.scoreCurrentTurnByPlayerKey = scoreCurrentTurnByPlayerKey;
 
-<<<<<<< HEAD
-          const template = STANDARD_GAME_EVENT_TEMPLATES[0];
           if (context.currentTurnMetadata.turn === 0) {
             console.log('start');
-            context.events.push(template());
             // assign region
             const region1 = randomCell();
             const region2 = randomCell();
@@ -564,9 +527,6 @@ export const createGameMachine = (gameSeed: GameSeed) => {
             });
           }
 
-          context.currentTurnMetadata.turn =
-            context.currentTurnMetadata.turn + 1;
-
           if (context.currentTurnMetadata.turn === 5) {
             context.grid = regionBoost({
               grid: context.grid,
@@ -574,7 +534,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
               solarIrradiance: context.region1.solar_irradiance,
               startRow: 0,
               endRow: context.grid.length / 2,
-            })
+            });
 
             const weatherTemplate = STANDARD_GAME_EVENT_TEMPLATES[2];
             context.events.push(
@@ -582,8 +542,8 @@ export const createGameMachine = (gameSeed: GameSeed) => {
                 regionId: 1,
                 name: context.region1.name,
                 windSpeed: context.region1.wind_speed,
-                solarIrradiance: context.region1.solar_irradiance
-              })
+                solarIrradiance: context.region1.solar_irradiance,
+              }),
             );
           }
 
@@ -594,48 +554,52 @@ export const createGameMachine = (gameSeed: GameSeed) => {
               solarIrradiance: context.region1.solar_irradiance,
               startRow: context.grid.length / 2 + 1,
               endRow: context.grid.length,
-            })
+            });
 
-            console.log(context.grid.map((row) => row.map((cell) => cell?.resourceByType)));
+            console.log(
+              context.grid.map((row) =>
+                row.map((cell) => cell?.resourceByType),
+              ),
+            );
             const weatherTemplate = STANDARD_GAME_EVENT_TEMPLATES[2];
             context.events.push(
               weatherTemplate({
                 regionId: 2,
                 name: context.region2.name,
                 windSpeed: context.region2.wind_speed,
-                solarIrradiance: context.region2.solar_irradiance
-              })
+                solarIrradiance: context.region2.solar_irradiance,
+              }),
             );
-=======
-          context.currentTurnMetadata.turn =
-            context.currentTurnMetadata.turn + 1;
+            context.currentTurnMetadata.turn =
+              context.currentTurnMetadata.turn + 1;
 
-          // TODO extract
+            // TODO extract
 
-          const winner = _.findKey(
-            primesByPlayerKey,
-            (primes) => primes.length > 0,
-          );
+            const winner = _.findKey(
+              primesByPlayerKey,
+              (primes) => primes.length > 0,
+            );
 
-          console.log('winner', winner);
-          if (winner) {
-            context.winner = winner;
-            self.send({
-              type: 'END_GAME',
-              playerKey: winner,
-            });
-            return;
->>>>>>> main
-          }
+            console.log('winner', winner);
+            if (winner) {
+              context.winner = winner;
+              self.send({
+                type: 'END_GAME',
+                playerKey: winner,
+              });
+              return;
+            }
 
-          if (context.currentTurnMetadata.turn > 20) {
-            console.log('send end');
-            context.winner = 'player-1';
-            self.send({
-              type: 'END_GAME',
-            });
+            if (context.currentTurnMetadata.turn > 20) {
+              console.log('send end');
+              context.winner = 'player-1';
+              self.send({
+                type: 'END_GAME',
+              });
+            }
           }
         },
+
         showEndResults: ({ context }) => {
           console.log('gameover');
 
