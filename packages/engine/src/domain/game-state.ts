@@ -431,7 +431,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           const victoryTemplate = STANDARD_GAME_EVENT_TEMPLATES[1];
           context.events.push(
             victoryTemplate({
-              playerKey: 'player-1',
+              playerKey: context.winner,
             }),
           );
         },
