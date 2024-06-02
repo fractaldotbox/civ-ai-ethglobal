@@ -37,6 +37,7 @@ import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
 import { randomCell } from './cell';
 import { getWeather } from './weather';
 import { regionBoost } from './grid-action';
+import { createDummyAgent } from './agent';
 =======
 import { createAgent, createDummyAgent } from './agent';
 >>>>>>> main
