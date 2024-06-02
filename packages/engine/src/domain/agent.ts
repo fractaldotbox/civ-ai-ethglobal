@@ -4,17 +4,20 @@ import {
   createBuildAction,
   createNuclearAction,
 } from './action';
-import { getAgentClient, getAgentContract } from './agent-on-chain';
+import { getAgentClient } from './agent-on-chain';
 import { GameState } from './game-state';
 import { Grid, TileResource } from './grid';
 import { pickRandomPlayer } from './player';
-import { createNextActionsPrompt } from './prompt';
+import {
+  createCollabConfirmationPrompt,
+  createNextActionsPrompt,
+} from './prompt';
 
+import { privateKeyToAccount } from 'viem/accounts';
 export interface Agent {
   deriveSyncActions: (gameState: GameState) => {
     actionStrategyAsync: any[];
   };
-  // derive
 }
 
 // interface for easily replaceable with actionable for debug
@@ -52,28 +55,49 @@ export const createDummyAgent = (playerKey: string) => {
   };
 };
 
+// TODO migrate to lit actions
+export const masterKeyByPlayerKey = {
+  'player-1': process.env.NEXT_PUBLIC_AGENT1_PRIVATE_KEY,
+  'player-2': process.env.NEXT_PUBLIC_AGENT2_PRIVATE_KEY,
+  'player-3': process.env.NEXT_PUBLIC_AGENT3_PRIVATE_KEY,
+  'player-4': process.env.NEXT_PUBLIC_AGENT4_PRIVATE_KEY,
+} as Record<string, `0x${string}`>;
+
 export const createAgent = async (playerKey: string, address: string) => {
-  const client = await getAgentClient(address);
+  const account = privateKeyToAccount(masterKeyByPlayerKey[playerKey]);
+
+  const client = await getAgentClient(address, account);
 
   let actions = [];
 
   return {
+    confirmCollab: async (gameState: GameState) => {
+      const playerKeys = gameState.players.map((player) => player.playerKey);
+      const prompt = createCollabConfirmationPrompt({
+        playerKey,
+        playerKeys,
+        gameState,
+      });
+      const results = await client.chat(prompt);
+
+      console.log('confirmCollab', results);
+
+      return results;
+    },
     deriveNextActions: async (gameState: GameState) => {
       const { grid, scoreByResourceByPlayerKey } = gameState;
 
       const scoreByResource = scoreByResourceByPlayerKey[playerKey];
 
       const prompt = createNextActionsPrompt({
+        playerKey,
         gameState,
         nextTurnCount: 5,
       });
+
       const results = await client.chat(prompt);
 
       console.log('deriveNextActions', results);
-      // console.log('runId', runId);
-      // const messages = await client.getMessageHistoryContents(runId);
-
-      // console.log('messages', messages);
 
       return results;
     },

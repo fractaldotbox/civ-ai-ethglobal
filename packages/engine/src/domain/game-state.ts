@@ -10,7 +10,13 @@
  *
  */
 import _ from 'lodash';
-import { createMachine, assign, sendParent, EventObject } from 'xstate';
+import {
+  createMachine,
+  assign,
+  sendParent,
+  EventObject,
+  fromPromise,
+} from 'xstate';
 import {
   GameSeed,
   Grid,
@@ -45,6 +51,7 @@ export type GameState = {
     turn: number;
     playerKey: string;
   };
+  collabByPlayerKey: Record<string, [string, boolean, string][]>;
   agentRunsByPlayerKey: Record<string, any[]>;
   scoreByResourceByPlayerKey: Record<string, { [k in TileResource]: number }>;
   scoreCurrentTurnByPlayerKey: Record<string, { [k in TileResource]: number }>;
@@ -87,8 +94,6 @@ const PLAYER_SEEDS = [
   },
 ];
 
-const initAgent = () => {};
-
 // model ownership of tiles at game for easier source of truth
 
 // pop up player actions onto game states
@@ -101,29 +106,101 @@ export const createPlayerMachine = (
   createMachine(
     {
       id: 'player',
-      initial: 'waiting',
+      initial: 'creating',
       context: {
+        agent: null as any,
         lastGameState: { ...gameState } as GameState,
         currentTurnMetadata: {} as any,
-        playerKey: '',
+        playerKey: player.playerKey,
         name: player.name,
         address: player.address,
+        actionPlans: [] as any[][],
         playerActions: [] as Action[],
       },
       states: {
+        creating: {
+          entry: sendParent(({ context }) => ({
+            type: 'emitLog',
+            action: {
+              type: ActionType.System,
+              playerKey: context.playerKey,
+              playerName: context.name,
+              payload: {
+                message: 'Initializing',
+              },
+            },
+          })),
+
+          invoke: {
+            src: fromPromise(async ({ input, self }: any): any => {
+              console.log('input', input);
+              const agent = await createAgent(input.playerKey, input.address);
+
+              // const agent = createDummyAgent(playerKey);
+              // (agent.deriveSyncActions(gameState) as Action[])
+
+              const results = await agent.deriveNextActions(gameState);
+
+              console.log('results', results);
+
+              return {
+                agent,
+                results,
+              };
+            }),
+            input: ({ context }) => ({
+              playerKey: context.playerKey,
+              address: context.address,
+              gameState: context.lastGameState,
+            }),
+            onDone: {
+              target: 'waiting',
+              actions: [
+                ({ context, event }) => {
+                  const { output } = event;
+                  const { agent, results } = output;
+
+                  context.agent = agent;
+
+                  // TODO take care fallback
+                  const actionPlans = results?.response?.actions || [];
+                  context.actionPlans.push(...actionPlans);
+                },
+                sendParent(({ context }) => ({
+                  type: 'emitLog',
+                  action: {
+                    type: ActionType.System,
+                    playerKey: context.playerKey,
+                    playerName: context.name,
+                    payload: {
+                      message: 'Initialize Completed',
+                    },
+                  },
+                })),
+              ],
+            },
+          },
+        },
         waiting: {
           entry: 'startGame',
           on: {
             DRAW: {
               target: 'playing',
-              // invoke
               actions: assign(({ context, event, self }): any => {
-                const playerActions = [];
-                const { id: playerKey } = self;
-                const { gameState } = event;
+                // only after it is agent turn and do everything, transit to thinking to avoid race condition
+                // require blocked thinking if urgently need action e.g. 1) semaphore style decision (collab or not) 2) action plans if sent async, not arried yet
 
+                const { gameState } = event;
+                context.lastGameState = gameState;
                 const { currentTurnMetadata, scoreByResourceByPlayerKey } =
                   gameState;
+                const { turn } = currentTurnMetadata;
+
+                if (turn === 0) {
+                }
+
+                const playerActions = [];
+                const { id: playerKey } = self;
 
                 const playerId = playerKey.split('-')[1];
 
@@ -131,14 +208,14 @@ export const createPlayerMachine = (
                 const scoreByResource = scoreByResourceByPlayerKey[playerKey];
                 // update turn
 
-                const { turn } = currentTurnMetadata;
+                // TODO take care fallback
+                const actionPlanned = context.actionPlans?.[turn]?.[0];
 
-                const agent = createDummyAgent(playerKey);
-
+                // TODO fix cost per different action
                 const syncActions =
                   scoreByResource[TileResource.Energy] < 5
                     ? [createNoopAction(playerKey)]
-                    : (agent.deriveSyncActions(gameState) as Action[]);
+                    : actionPlanned;
 
                 const playerIndex = asPlayerIndex(playerKey);
 
@@ -151,13 +228,6 @@ export const createPlayerMachine = (
 
                 playerActions.push(...syncActions);
 
-                console.log(
-                  'research-turn',
-                  playerKey,
-                  playerIndex,
-                  turn,
-                  turn % 3,
-                );
                 if (isResearchTurn) {
                   const researchAction = createResearchAction(
                     turn + 1,
@@ -174,10 +244,16 @@ export const createPlayerMachine = (
             },
           },
         },
+
         playing: {
           entry: ['takeAction', 'takeResearchAction'],
           always: 'waiting',
         },
+        // thinking: {
+        //   invoke: {
+        //     src: fromPromise(context.agent),
+        //   },
+        // },
         done: {
           type: 'final',
         },
@@ -189,10 +265,6 @@ export const createPlayerMachine = (
           console.log('startGame');
 
           // TODO ensure async otherwise race conditions
-          // const agent = await createAgent(
-          //   self.id,
-          //   '0xfA48970C65616d91891A2E0e33D17F0e7189c5D8',
-          // );
 
           // await agent.deriveNextActions(context.lastGameState);
 
@@ -218,6 +290,27 @@ export const createPlayerMachine = (
           return {
             type: 'empty',
             data: {},
+          };
+        }),
+        planActions: assign(async ({ context }: any): any => {
+          const { currentTurnMetadata } = context?.lastGameState;
+          console.log('confirm');
+
+          if (currentTurnMetadata.turn % 5 === 2) {
+            const results = await context.agent.deriveNextActions(gameState);
+          }
+
+          // context
+        }),
+        confirmCollab: sendParent(async ({ context }): any => {
+          const results = await context.agent.confirmCollab(gameState);
+          console.log('confirm');
+
+          return {
+            type: 'collabResponsed',
+            data: {
+              collabPairs: results?.results,
+            },
           };
         }),
       },
@@ -273,6 +366,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         winner: null,
         logs: [],
         events: [],
+        collabByPlayerKey: createByPlayerKey(gameSeed.playerCount, () => []),
         currentTurnMetadata: {
           turn: 0,
           playerKey: '',
@@ -320,6 +414,12 @@ export const createGameMachine = (gameSeed: GameSeed) => {
             context.logs.unshift({
               action: event.action,
             });
+          }),
+        },
+        collabResponsed: {
+          actions: assign(({ context, event }): any => {
+            const { playerKey, data } = event;
+            context.collabByPlayerKey[playerKey] = data.collabPairs;
           }),
         },
         researchUpdated: {
@@ -434,6 +534,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
                 createPlayerMachine(
                   {
                     ...playerSeed,
+                    playerKey,
                   },
                   context,
                 ),
@@ -547,6 +648,32 @@ export const createGameMachine = (gameSeed: GameSeed) => {
                 regionId: 2,
                 weather: value,
               });
+            });
+          }
+
+          if (context.currentTurnMetadata.turn === 20) {
+            // research
+            const playerKeys = context.players.map(
+              ({ playerKey }) => playerKey,
+            );
+            // form pairs
+            const pairs = _.chunk(_.shuffle(playerKeys), 2);
+
+            console.log('research pairs', pairs);
+
+            pairs.forEach((pair) => {
+              const [playerKey1, playerKey2] = pair;
+              const isPlayer1Ok = context.collabByPlayerKey[playerKey1].find(
+                ([playerKey, isOk]) => playerKey === playerKey2,
+              );
+              const isPlayer2Ok = context.collabByPlayerKey[playerKey2].find(
+                ([playerKey, isOk]) => playerKey === playerKey1,
+              );
+              if (isPlayer1Ok && isPlayer2Ok) {
+                // carry out collab
+                // createResearchAction();
+              }
+              // carry out collab
             });
           }
 

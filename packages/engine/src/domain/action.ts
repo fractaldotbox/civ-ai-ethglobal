@@ -12,12 +12,14 @@ export enum ActionType {
   Research = 'research',
   Nuclear = 'nuclear',
   Noop = 'noop',
+  System = 'system',
 }
 
 export type Action = {
   i?: number;
   j?: number;
   payload: any;
+  playerName?: string;
   playerKey: string;
   type: ActionType;
   costByResourceType?: {

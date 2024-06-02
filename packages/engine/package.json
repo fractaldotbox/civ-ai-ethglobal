@@ -17,6 +17,7 @@
     }
   },
   "dependencies": {
+    "@types/node": "^20.11.24",
     "got": "^14.3.0",
     "lodash": "^4.17.21",
     "p-queue": "^8.0.1",

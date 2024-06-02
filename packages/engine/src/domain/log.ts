@@ -21,6 +21,8 @@ export const formatCost = (costByResourceType?: Record<string, number>) => {
   return `Cost ${cost}`;
 };
 
+// TODO logo or color scheme
+
 const FORMATTER_BY_BUILD_TYPE = {
   [ActionType.Build]: (log: LogEvent) => {
     const { i, j, payload, playerKey, costByResourceType } = log.action;
@@ -37,6 +39,10 @@ const FORMATTER_BY_BUILD_TYPE = {
     const { payload, playerKey, costByResourceType } = log.action;
     const { n } = payload;
     return `Player ${playerKey} research PrimeGPT-${n} | ${formatCost(costByResourceType)}`;
+  },
+  [ActionType.System]: (log: LogEvent) => {
+    const { payload, playerKey, playerName, costByResourceType } = log.action;
+    return `Player ${playerName} ${payload?.message}`;
   },
   [ActionType.Noop]: (log: LogEvent) => {},
 };
