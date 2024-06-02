@@ -24,7 +24,7 @@ export default ({ event }: { event: GameEvent }) => {
                     )}
                 </div>
 
-                <p className="py-4">{description}</p>
+                <p className="py-2">{description}</p>
                 <div className="modal-action">
                     <form method="dialog">
                         {/* if there is a button in form, it will close the modal */}

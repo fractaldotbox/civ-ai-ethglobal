@@ -1,3 +1,5 @@
+import { keys } from "lodash";
+
 export type GameEvent = {
   key: string;
   title: string;
@@ -34,4 +36,37 @@ AI can decide if they do so.
    OK You win
     `,
   }),
+  ({regionId, name, windSpeed, solarIrradiance} : {regionId: String, name: String, windSpeed: number, solarIrradiance: number}) => {
+    console.log('regionId = ', regionId);
+    let keySuffix = '';
+    let weatherDescription = '';
+    let effectDescription = '';
+    if (windSpeed < 5 && solarIrradiance < 500) {
+      // no event
+      keySuffix = '-normal';
+      weatherDescription = 'normal';
+      effectDescription = 'Nothing special happens';
+    } else if (windSpeed > 5 && solarIrradiance < 500) {
+      // windy
+      keySuffix = '-windy';
+      weatherDescription = 'windy 🌀';
+      effectDescription = 'The performance of wind turbines will be doubled from this turn 🚀';
+    } else if (windSpeed < 5 && solarIrradiance > 500) {
+      // sunny
+      keySuffix = '-sunny';
+      weatherDescription = 'sunny 🌞';
+      effectDescription = ' The performance of solar panels will be doubled from this turn 🚀';
+    } else {
+      // windy and sunny
+      keySuffix = '-windy-sunny';
+      weatherDescription = 'windy and sunny 🌀🌞';
+      effectDescription = 'The performance of solar panels and wind turbines will be doubled from this turn 🚀🚀';
+    }
+    return {
+      key: `region${regionId}${keySuffix}`,
+      title: `${name} has a ${weatherDescription} day`,
+      imageSrc: `/region${regionId}${keySuffix}.png`,
+      description: `${name} is experiencing a ${weatherDescription} day. ${effectDescription}`,
+    };
+  }
 ] as ((context?: any) => GameEvent)[];
