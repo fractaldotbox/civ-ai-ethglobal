@@ -56,17 +56,8 @@ export default function Page(): JSX.Element {
   return (
     <main className={styles.main}>
       <div className={styles.description}>
-        <p>
-          examples/basic&nbsp;
-          <Code className={styles.code}>web</Code>
-        </p>
 
       </div>
-
-      <Button appName="web" className={styles.button} >
-        start
-      </Button>
-
       <div className={styles.hero}>
         <div className={styles.heroContent}>
           <div className={styles.logos}>
@@ -99,17 +90,14 @@ export default function Page(): JSX.Element {
           </div>
         </div>
       </div>
-      <h1 className="text-3xl font-bold underline">
-        Hello world!
-      </h1>
-      <div className={styles.grid}>
-        {LINKS.map(({ title, href, description }) => (
-          <Card className={styles.card} href={href} key={title} title={title}>
-            {description}
-          </Card>
-        ))}
+      <Button appName="web" className={styles.button} >
+        start
+      </Button>
 
-      </div>
+      <h1 className="text-3xl font-bold underline">
+        Choose players to start
+      </h1>
+
     </main >
   );
 }

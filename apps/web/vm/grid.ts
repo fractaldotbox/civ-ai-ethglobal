@@ -1,6 +1,12 @@
 import { Node } from 'reactflow';
 import { Tile } from '@repo/engine';
 
+export const REGION_OFFSET_Y = 100;
+
+export const getOffsetY = (j: number, columnSize: number) => {
+  return j >= columnSize / 2 ? REGION_OFFSET_Y : 0;
+};
+
 export const mapSnapshotAsNodes = (
   snapshot: any,
   positionScale: number,
@@ -14,6 +20,8 @@ export const mapSnapshotAsNodes = (
 
       const xOffset = j % 2 === 0 ? 0 : (positionScale + margin) / 2;
 
+      const yOffset = getOffsetY(j, grid.length);
+
       return {
         id: 'id' + i + j,
         data: {
@@ -21,7 +29,7 @@ export const mapSnapshotAsNodes = (
         },
         position: {
           x: i * (positionScale + margin) + xOffset,
-          y: j * positionScale,
+          y: j * positionScale + yOffset,
         },
       };
     });

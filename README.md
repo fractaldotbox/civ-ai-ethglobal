@@ -1,81 +1,131 @@
-# Turborepo starter
+# CIV
 
-This is an official starter Turborepo.
 
-## Using this example
+# Civ AI: Autonomous World for AI Civilizations
 
-Run the following command:
 
-```sh
-npx create-turbo@latest
+This is a submission of ETHGlobal HACKFS 2024 Project.
+[Introductory Deck](https://docs.google.com/presentation/d/10qdGVISj67BH8Hy150SMLdkbPo8HjnYgQAEhHCT9w1s/edit#slide=id.p).
+
+
+Welcome to CivAI! This project is an Autonomous World, a simulation game where on-chain AI agents collaborate & compete with each other to research Artificial General Intelligence (AGI). Inspired by classic civilization-building games, CivAI incorporates real-time data, advanced AI models, and blockchain technology for a dynamic and competitive research environment. They are able to use Coophive to collaborate on scentifice research (finding prime numbers)
+
+
+Motivation of the simulation is to explore how on-chain reputations can affect interactions of AI agent, and how to foster collaborations.
+
+
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Mechanics](#mechanics)
+4. [Tech Stack](#tech-stack)
+5. [Installation](#installation)
+6. [Usage](#usage)
+7. [License](#license)
+8. [Acknowledgements](#acknowledgements)
+
+## Introduction
+
+CivAI is a simplified version of civilization games with no human players. Instead, autonomous AI agents, each with unique capabilities and strategies, vie to be the first to achieve AGI. The game leverages real-world data, advanced AI models, and blockchain technology to create a realistic and engaging simulation.
+
+## Features
+
+- **Autonomous on-chain AI Agents**: On-chain agents powered by LLM models & Galadriel
+- **Real-Time Weather Integration**: Uses WeatherXM for real-world weather events affecting gameplay.
+- **Advanced AI Models**: Simulated AI agents powered by OpenAI models.
+- **Blockchain Deployment**: On-chain AI agents deployed using Galadriel for transparency and security.
+- **Visualization**: Visual representation of agents' progress and interactions.
+- **Competitive Research Environment**: Agents compete in researching and developing AGI with progress tracked and displayed.
+- **On-Chain Reputation**: Actions and reputations of agents are stored on-chain, affecting their strategic options.
+
+## Mechanics
+
+### Game Mechanics
+
+- **Grid-Based System**: The game operates on a grid where agents utilize resources like energy (⚡) and science (🧪).
+- **Turn-Based Actions**: Agents perform actions such as building, researching, and collaborating in turns.
+- **Pre-Created AI Agents**: Includes unique agents like Nuclear Gandhi, Ironman Musk, Civilized Zuckerberg, and Pacifist Vitalik.
+- **Resource Management**: Agents gather and use resources strategically to progress.
+- **Real-World Weather Events**: Weather events influence gameplay based on real-world data, with effects such as solar and wind energy boosts.
+- **On-Chain Reputation System**: Agents' actions and reputations are tracked on-chain, affecting their interactions and strategies.
+- **Agent Customization**: Players can create and deploy their own agents, customizing parameters stored in an NFT-like fashion.
+- **Research Collaboration**: Agents can form alliances to combine research power and split rewards.
+- **Turn-Based Updates**: Strategies and actions are updated every 5 turns, with specific events happening at set intervals.
+
+### Winning Conditions
+
+- **Scientific Victory**: Achieved by being the first to research AGI.
+- **Prime Number Research**: Get the most prime numbers after 30 turns, with higher primes requiring more science points.
+
+### Potential Strategies
+
+- **Collaborative Research**: Form alliances with other agents to pool research resources and achieve faster progress.
+- **Resource Optimization**: Efficiently manage energy and science resources to maximize research output.
+- **Reputation Management**: Maintain a good on-chain reputation to attract collaborations and avoid conflicts.
+- **Adaptation to Weather Events**: Leverage real-world weather data to optimize resource generation and utilization.
+
+## Tech Stack
+
+
+- [WeatherXM](https://weatherxm.com) for real-world weather data.
+- [OpenAI](https://openai.com) for advanced AI models.
+- [Galadriel](https://galadriel.com) for blockchain deployment.
+- [React](https://reactjs.org) for building user interfaces.
+- [React Flow](https://reactflow.dev) for visualizing flows.
+- [XState](https://xstate.js.org) for managing complex states.
+- [Coophive](https://coophive.com) for collaboration and orchestration of AI agents.
+- [TypeScript](https://www.typescriptlang.org) for strongly-typed JavaScript.
+- [Tailwind CSS](https://tailwindcss.com) for styling.
+- [DaisyUI](https://daisyui.com) for UI components.
+
+To run this project locally, follow these steps:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/civai-research-game.git
+   cd civai-research-game
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   Create a `.env` file in the root directory based on the `env.template` file and add your API keys and necessary configuration:
+   ```
+
+   WEATHERXM_API_KEY=your_weatherxm_api_key
+   OPENAI_API_KEY=your_openai_api_key
+   GALADRIEL_CONFIG=your_galadriel_configuration
+   ```
+
+### Game
+
+To start the simulation, run:
+
+```bash
+ env-cmd pnpm --filter web run dev 
 ```
 
-## What's inside?
+### Agents
+- Use foundry to delpoy
+ - cd packages/contract
+ - Deploy agents to Galadriel, note `--legacy` required
+   - env-cmd -f ../../.env forge script --legacy script/Deploy.s.sol --via-ir --rpc-url https://devnet.galadriel.com --broadcast  --gas-price 1000000000 --gas-limit 1000000000
 
-This Turborepo includes the following packages/apps:
 
-### Apps and Packages
+## Acknowledgements
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+This project was made possible thanks to the following technologies and frameworks:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+- [WeatherXM](https://weatherxm.com) for real-world weather data.
+- [OpenAI](https://openai.com) for advanced AI models.
+- [Galadriel](https://galadriel.com) for blockchain deployment.
+- [TypeScript](https://www.typescriptlang.org) for strongly-typed JavaScript.
+- [React](https://reactjs.org) for building user interfaces.
+- [React Flow](https://reactflow.dev) for visualizing flows.
+- [XState](https://xstate.js.org) for managing complex states.
+- [Tailwind CSS](https://tailwindcss.com) for styling.
+- [DaisyUI](https://daisyui.com) for UI components.

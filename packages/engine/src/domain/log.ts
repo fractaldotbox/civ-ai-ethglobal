@@ -43,8 +43,10 @@ const FORMATTER_BY_BUILD_TYPE = {
 
 export const mapLogAsMessage = (log: LogEvent) => {
   let message = '';
-
-  const logFormatter = FORMATTER_BY_BUILD_TYPE[log.action.type];
+  if (!log?.action?.type) {
+    return message;
+  }
+  const logFormatter = FORMATTER_BY_BUILD_TYPE[log?.action?.type];
 
   message = logFormatter(log) || '';
   console.log(message);

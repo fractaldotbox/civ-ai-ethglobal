@@ -83,6 +83,7 @@ export default () => {
                 data={data}
                 layout={{
                     title: "Chart",
+
                     font: {
                         size: 12
                     },
@@ -91,7 +92,7 @@ export default () => {
                     autosize: true,
                     showlegend: false,
                     polar: {
-                        bgcolor: "rgb(223, 223, 223)",
+                        bgcolor: "transparent",
                         angularaxis: {
                             tickwidth: 4,
                             direction: "counterclockwise",
@@ -99,6 +100,7 @@ export default () => {
                             // @ts-ignore
                             autosize: true,
                             thetaunit: "radians",
+                            color: 'white',
                             // tickmode: 'array',
                             // tickvals: [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2, 2 * Math.PI],
                             // ticktext: ['0', 'π/2', 'π', '3π/2', '2π']
@@ -108,11 +110,11 @@ export default () => {
                             showline: false,
                             linewidth: 0,
                             // tickwidth: 2,
-                            gridcolor: "transparent",
+                            gridcolor: "white",
                             gridwidth: 0
                         }
                     },
-                    paper_bgcolor: "rgb(223, 223, 223)",
+                    paper_bgcolor: "black",
                 }}
             />
         </div>

@@ -11,11 +11,16 @@ export type Tile = {
 export type Grid = Tile[][];
 
 export enum TileResource {
-  Energy = 'ernergy',
+  Energy = 'energy',
   // Locked
   Science = 'science',
   Productivity = 'productivity',
   Research = 'research',
+}
+
+export enum TileWeatherStation {
+  SolarPanel = 'solarPanel',
+  WindTurbine = 'windTurbine',
 }
 
 export enum TileBuilding {
@@ -49,6 +54,24 @@ export const LABEL_BY_TILE_RESOURCE = {
   [TileResource.Research]: '🔬',
   // [TileResource.Productivity]: '⚙️',
 };
+
+export const encodedGrid = (grid: Grid) =>
+  grid.flat().map((tile) => {
+    const { i, j, owner, resourceByType = {} } = tile;
+    return (
+      'i:' +
+      i +
+      ' j:' +
+      j +
+      ' o:' +
+      `[${owner || 'no'}]` +
+      ' r:' +
+      Object.keys(resourceByType).map((key) =>
+        //@ts-ignore
+        [key, resourceByType[key as TileResource]].join('-'),
+      )
+    );
+  });
 
 export const generateEmptyGrid = (rowSize: number, columnSize: number) =>
   Array(columnSize)
@@ -162,7 +185,7 @@ export const generateRandomGrid = (gameSeed: GameSeed) => {
 
   // ensure no overlap
 
-  const playerTiles = Array.from({ length: 3 }, (_, i) => {
+  const playerTiles = Array.from({ length: playerCount }, (_, i) => {
     return {
       id: `player-${i + 1}`,
       building: TileBuilding.Hq,

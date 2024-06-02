@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'vitest';
 
 import { createActor, assign } from 'xstate';
-import { playerMachine, createGameMachine } from './game-state';
+import { createPlayerMachine, createGameMachine } from './game-state';
 import { TileBuilding, TileResource } from './grid';
+import { createGameState, gameSeedFixture } from './game-state.fixture';
 
 describe('Game State Machine', () => {
-  // test('playerMachine', ()=>{
+  // test('createPlayerMachine', ()=>{
 
-  //     const player = createActor(playerMachine);
+  //     const player = createActor(createPlayerMachine);
 
   //     player.subscribe((snapshot) => {
   //         console.log(snapshot);
@@ -19,42 +20,14 @@ describe('Game State Machine', () => {
   //     player.stop();
   // })
   test('should go through a turn ', async (done: any) => {
-    const gameSeed = {
-      rowSize: 10,
-      columnSize: 10,
-      playerCount: 2,
-      tileResourceMax: 3,
-      tileByType: {
-        [TileResource.Energy]: {
-          total: 100,
-        },
-        [TileResource.Science]: {
-          total: 100,
-        },
-      },
-    };
-
-    const game = createActor(createGameMachine(gameSeed));
-
-    game.start();
-    // expect(game.getSnapshot().context.currentTurn).toBe(0);
-
-    await game.send({ type: 'DRAW' });
-
-    await game.send({ type: 'NEXT' });
-
-    // await game.send({ type: "DRAW" })
-    // await game.send({ type: "NEXT" })
+    const game = await createGameState(gameSeedFixture, 1);
     // seems enough to ensure all listeners run
     game.stop();
-
-    // console.log(game.getSnapshot())
 
     const snapshot = game.getSnapshot();
 
     snapshot.context.players.forEach((player: any) => {
-      const snapshot = player.getSnapshot();
-      console.log('snpahost', snapshot.value);
+      // const snapshot = player.ref.getSnapshot();
     });
 
     console.log(snapshot.context);
@@ -84,4 +57,27 @@ describe('Game State Machine', () => {
   });
 
   test('build only at adjacent free tiles', () => {});
+
+  // TODO mock the findNPrimes to avoid int test
+  test.only('victory condition', async () => {
+    const game = await createGameState(gameSeedFixture, 1);
+
+    await game.send({
+      type: 'researchUpdated',
+      playerKey: 'player-2',
+      primes: Array.from({ length: 999 }, (i) => 1),
+    });
+
+    await game.send({ type: 'NEXT' });
+
+    await game.send({ type: 'NEXT' });
+
+    await game.send({ type: 'NEXT' });
+
+    await game.send({ type: 'NEXT' });
+
+    const snapshot = game.getSnapshot();
+    expect(snapshot.context.winner).toEqual('player-2');
+    expect(snapshot.value).toEqual('endGame');
+  });
 });

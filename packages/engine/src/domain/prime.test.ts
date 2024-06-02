@@ -4,7 +4,7 @@ import { findNPrimes } from './prime';
 describe(
   'prime api',
   () => {
-    test.only('#findNPrimes', async () => {
+    test('#findNPrimes', async () => {
       const result = await findNPrimes(100);
       const { output } = result;
       expect(parseInt(output)).toEqual([
@@ -35,7 +35,7 @@ describe(
         '97',
       ]);
     });
-    test.only('#findNthPrimes', async () => {
+    test('#findNthPrimes', async () => {
       const result = await findNPrimes(1e10);
       const { output } = result;
       expect(parseInt(output)).toEqual(455052511);
