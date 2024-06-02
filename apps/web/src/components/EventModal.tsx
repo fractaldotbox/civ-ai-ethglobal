@@ -17,7 +17,7 @@ export default ({ event }: { event: GameEvent }) => {
 
                         <Image
                             src={imageSrc}
-                            width={600}
+                            width={700}
                             height={600}
                             alt="Picture of the author"
                         />

@@ -70,13 +70,15 @@ const mapResourceAsLabel = (tile: Tile) => {
         <div className="flex flex-row">
             {_.values(TileResource).map((resource: TileResource) => {
                 const count = resourceByType?.[resource] || 0;
+
+                const labelClassName = count > 2 ? "text-lg m-[-6px]" : 'text-xl m-[-3px]';
                 if (count > 0) {
                     return (
                         <div className="flex flex-col" key={"row" + resource}>
                             {Array(count)
                                 .fill(null)
                                 .map((v, i) => {
-                                    return <div key={"tile-" + i} className="text-xl">{LABEL_BY_TILE_RESOURCE[resource]}</div>;
+                                    return <div key={"tile-" + i} className={labelClassName}>{LABEL_BY_TILE_RESOURCE[resource]}</div>;
                                 })}
                         </div>
                     );

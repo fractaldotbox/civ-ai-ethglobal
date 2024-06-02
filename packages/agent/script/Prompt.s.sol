@@ -53,9 +53,9 @@ contract Prompt is Script {
         uint runId = civAIAgent.runAgent(turnPrompt, 3);
         console2.log("Chat run", runId);
 
-        vm.sleep(10000);
+        vm.sleep(60000);
 
-        readMessages(civAIAgent, runId);
+        readMessages(civAIAgent, 55);
 
 
 

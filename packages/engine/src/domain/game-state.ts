@@ -37,12 +37,13 @@ import { createDummyAgent } from './agent';
 
 export type GameState = {
   logs: LogEvent[];
-  isEnded: boolean;
+  winner: string | null;
   events: GameEvent[];
   currentTurnMetadata: {
     turn: number;
     playerKey: string;
   };
+  agentRunsByPlayerKey: Record<string, any[]>;
   playerNameByKey: Record<string, string>;
   scoreByResourceByPlayerKey: Record<string, { [k in TileResource]: number }>;
   scoreCurrentTurnByPlayerKey: Record<string, { [k in TileResource]: number }>;
@@ -77,10 +78,13 @@ export const playerMachine = createMachine(
               playerActions: ({ context, event, self }) => {
                 const { id: playerKey } = self;
                 const {
-                  grid,
-                  currentTurnMetadata,
-                  scoreByResourceByPlayerKey,
+                  gameState,
+                  // currentTurnMetadata,
+                  // scoreByResourceByPlayerKey,
                 } = event;
+
+                const { currentTurnMetadata, scoreByResourceByPlayerKey } =
+                  gameState;
 
                 const playerId = playerKey.split('-')[1];
 
@@ -90,16 +94,12 @@ export const playerMachine = createMachine(
 
                 const { turn } = context.currentTurnMetadata;
 
-                const agent = createDummyAgent();
+                const agent = createDummyAgent(playerKey);
 
                 const syncActions =
                   scoreByResource[TileResource.Energy] < 5
                     ? [createNoopAction(playerKey)]
-                    : (agent.deriveSyncActions(
-                        grid,
-                        playerKey,
-                        scoreByResource,
-                      ) as Action[]);
+                    : (agent.deriveSyncActions(gameState) as Action[]);
 
                 const playerIndex = asPlayerIndex(playerKey);
 
@@ -132,6 +132,8 @@ export const playerMachine = createMachine(
     actions: {
       startGame: ({ context, self }) => {
         console.log('startGame');
+
+        // Pre-trigger first trun
       },
       takeAction: sendParent(({ context }) => ({
         type: 'playerAction',
@@ -169,13 +171,13 @@ const playerEntry =
 const createSendToPlayer =
   (playerIndex: number) =>
   async ({ context }: { context: any }) => {
-    const { grid } = context;
     console.log('sendToPlayer' + playerIndex);
     await context.players[playerIndex - 1]?.ref.send({
       type: 'DRAW',
-      scoreByResourceByPlayerKey: context.scoreByResourceByPlayerKey,
-      grid,
-      currentTurnMetadata: context.currentTurnMetadata,
+      gameState: context,
+      // scoreByResourceByPlayerKey: context.scoreByResourceByPlayerKey,
+      // grid,
+      // currentTurnMetadata: context.currentTurnMetadata,
     });
   };
 
@@ -198,20 +200,19 @@ export const createGameMachine = (gameSeed: GameSeed) => {
       id: 'game',
       initial: 'start',
       context: {
+        winner: null,
         logs: [],
         events: [],
-        isEnded: false,
         currentTurnMetadata: {
           turn: 0,
           playerKey: '',
         },
+        agentRunsByPlayerKey: createByPlayerKey(
+          gameSeed.playerCount,
+          () => ({}),
+        ),
         primesByPlayerKey: createByPlayerKey(gameSeed.playerCount, () => []),
         // TODO metadata injected
-        playerNameByKey: {
-          'player-1': 'Nuclear Gandhi',
-          'player-2': 'Purist Vitalik',
-          'player-3': 'Ironman Musk',
-        } as Record<string, string>,
         players: [] as Player[],
         scoreByResourceByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
@@ -368,7 +369,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
             // need the guard so self event take priority
             {
               target: 'player1',
-              guard: ({ context }) => !context.isEnded,
+              guard: ({ context }) => !context.winner,
             },
           ],
         },
@@ -384,7 +385,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         wrapUpTurn: ({ context, self }) => {
           console.log('wrap up turn', context?.currentTurnMetadata?.turn);
 
-          const { grid } = context;
+          const { grid, primesByPlayerKey } = context;
           const { scoreByResourceByPlayerKey, scoreCurrentTurnByPlayerKey } =
             calculateScoreByPlayer(grid, context.scoreByResourceByPlayerKey);
 
@@ -399,9 +400,26 @@ export const createGameMachine = (gameSeed: GameSeed) => {
           context.currentTurnMetadata.turn =
             context.currentTurnMetadata.turn + 1;
 
+          // TODO extract
+
+          const winner = _.findKey(
+            primesByPlayerKey,
+            (primes) => primes.length > 0,
+          );
+
+          console.log('winner', winner);
+          if (winner) {
+            context.winner = winner;
+            self.send({
+              type: 'END_GAME',
+              playerKey: winner,
+            });
+            return;
+          }
+
           if (context.currentTurnMetadata.turn > 20) {
             console.log('send end');
-            context.isEnded = true;
+            context.winner = 'player-1';
             self.send({
               type: 'END_GAME',
             });

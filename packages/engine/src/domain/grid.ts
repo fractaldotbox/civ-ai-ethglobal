@@ -55,6 +55,24 @@ export const LABEL_BY_TILE_RESOURCE = {
   // [TileResource.Productivity]: '⚙️',
 };
 
+export const encodedGrid = (grid: Grid) =>
+  grid.flat().map((tile) => {
+    const { i, j, owner, resourceByType = {} } = tile;
+    return (
+      'i:' +
+      i +
+      ' j:' +
+      j +
+      ' o:' +
+      `[${owner || 'no'}]` +
+      ' r:' +
+      Object.keys(resourceByType).map((key) =>
+        //@ts-ignore
+        [key, resourceByType[key as TileResource]].join('-'),
+      )
+    );
+  });
+
 export const generateEmptyGrid = (rowSize: number, columnSize: number) =>
   Array(columnSize)
     .fill(null)

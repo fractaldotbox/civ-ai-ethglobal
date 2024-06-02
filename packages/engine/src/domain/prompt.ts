@@ -1,6 +1,22 @@
+import _ from 'lodash';
 import { GameState } from './game-state';
+import { encodedGrid, genearteGridWithNonOverlappingTiles } from './grid';
 
-export const createBuildActionsPrompt = ({
+export const pruneGameState = (gameState: GameState) => {
+  const { grid, scoreByResourceByPlayerKey } = gameState;
+
+  return {
+    ..._.omit(gameState, [
+      'grid',
+      'currentTurnMetadata',
+      // 'scoreByResourceByPlayerKey',
+      'players',
+    ]),
+    grid: encodedGrid(grid),
+  };
+};
+
+export const createNextActionsPrompt = ({
   nextTurnCount,
   gameState,
 }: {
@@ -9,12 +25,16 @@ export const createBuildActionsPrompt = ({
 }) => {
   const { currentTurnMetadata } = gameState;
   const { turn } = currentTurnMetadata;
+
+  const prunedGameState = pruneGameState(gameState);
+
+  console.log('prunedGameState', prunedGameState);
   return `
 This is turn ${turn}. Generate actions for next ${nextTurnCount} turns.
 
 Give your reponse in json format where explanations is embeded in it {'actions':[ [ // action of turn 1 ], [ // action of turn 2]  ], 'explanations': 'My strategy is...' }
 
-Current Game State:  ${JSON.stringify(gameState)}
+Current Game State:  ${JSON.stringify(prunedGameState)}
 
  `;
 };

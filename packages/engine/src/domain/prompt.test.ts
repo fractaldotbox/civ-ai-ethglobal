@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import {
-  createBuildActionsPrompt,
-  createCollaborateConfirmationPrompt,
+  createNextActionsPrompt,
+  createCollabConfirmationPrompt,
 } from './prompt';
 import { createGameState, gameSeedFixture } from './game-state.fixture';
 
-describe.only('prompt', () => {
-  test('#createBuildActionsPrompt', async () => {
+describe('prompt', () => {
+  test('#createNextActionsPrompt', async () => {
     const game = await createGameState(gameSeedFixture, 3);
 
     const gameState = game.getSnapshot().context;
-    const result = createBuildActionsPrompt({
+    const result = createNextActionsPrompt({
       nextTurnCount: 5,
       gameState,
     });
@@ -18,11 +18,11 @@ describe.only('prompt', () => {
     expect(!!result.match(/This is turn 3/)).toBe(true);
   });
 
-  test('#createCollaborateConfirmationPrompt', async () => {
+  test('#createCollabConfirmationPrompt', async () => {
     const game = await createGameState(gameSeedFixture, 3);
     const gameState = game.getSnapshot().context;
-    const prompt = createCollaborateConfirmationPrompt({
-      collaboratePlayerKey: 'player-2',
+    const prompt = createCollabConfirmationPrompt({
+      collabPlayerKey: 'player-2',
       gameState,
     });
 

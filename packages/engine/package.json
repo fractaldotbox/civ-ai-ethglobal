@@ -20,6 +20,7 @@
     "got": "^14.3.0",
     "lodash": "^4.17.21",
     "p-queue": "^8.0.1",
+    "viem": "2.x",
     "xstate": "^5.13.0"
   },
   "devDependencies": {

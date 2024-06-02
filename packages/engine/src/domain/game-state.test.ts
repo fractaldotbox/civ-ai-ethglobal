@@ -27,7 +27,7 @@ describe('Game State Machine', () => {
     const snapshot = game.getSnapshot();
 
     snapshot.context.players.forEach((player: any) => {
-      const snapshot = player.getSnapshot();
+      // const snapshot = player.ref.getSnapshot();
     });
 
     console.log(snapshot.context);
@@ -57,4 +57,27 @@ describe('Game State Machine', () => {
   });
 
   test('build only at adjacent free tiles', () => {});
+
+  // TODO mock the findNPrimes to avoid int test
+  test.only('victory condition', async () => {
+    const game = await createGameState(gameSeedFixture, 1);
+
+    await game.send({
+      type: 'researchUpdated',
+      playerKey: 'player-2',
+      primes: Array.from({ length: 999 }, (i) => 1),
+    });
+
+    await game.send({ type: 'NEXT' });
+
+    await game.send({ type: 'NEXT' });
+
+    await game.send({ type: 'NEXT' });
+
+    await game.send({ type: 'NEXT' });
+
+    const snapshot = game.getSnapshot();
+    expect(snapshot.context.winner).toEqual('player-2');
+    expect(snapshot.value).toEqual('endGame');
+  });
 });

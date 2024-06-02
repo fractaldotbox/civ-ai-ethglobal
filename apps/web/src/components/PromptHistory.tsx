@@ -11,67 +11,34 @@ const abi = [{ "type": "constructor", "inputs": [{ "name": "initialOracleAddress
 
 import { http, createConfig, getPublicClient, getWalletClient } from '@wagmi/core'
 import { useEffect, useState } from 'react'
-import { defineChain, getContract } from 'viem'
-
-
-export const galadriel = defineChain({
-    id: 696969,
-    name: 'Galadriel',
-    nativeCurrency: {
-        decimals: 18,
-        name: 'GALA',
-        symbol: 'GAL',
-    },
-    rpcUrls: {
-        default: {
-            http: ['https://devnet.galadriel.com'],
-        },
-    },
-    blockExplorers: {
-        default: { name: 'Explorer', url: 'https://explorer.zora.energy' },
-    },
-    // contracts: {
-    //     multicall3: {
-    //         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-    //         blockCreated: 5882,
-    //     },
-    // },
-})
-
-export const config = createConfig({
-    chains: [galadriel],
-    transports: {
-        [galadriel.id]: http()
-    },
-})
-
 export default () => {
 
-
-    // 3. Extract a Viem Public Client for the current active chain.
-    const publicClient = getPublicClient(config)
-
-    const address = '0xfA48970C65616d91891A2E0e33D17F0e7189c5D8';
-
-    const contract = getContract({ address, abi, client: publicClient })
 
 
     const [initPrompts, setInitPrompts] = useState([])
 
+
+    // getAgentContract()
+
     useEffect(() => {
-        if (!contract?.read) {
-            return;
-        }
+        // if (!contract?.read) {
+        //     return;
+        // }
         // @ts-ignore
-        contract.read.getMessageHistoryContents([0])
-            .then((messages: any) => {
-                console.log('getMessageHistoryContents', messages)
-                if (messages.length >= 2) {
+        (async () => {
 
-                    setInitPrompts(messages)
-                }
+            // from game state
 
-            });
+            // const messages = await contract.read.getMessageHistoryContents([0]);
+            // console.log('messages', messages)
+            // if (messages.length >= 2) {
+            //     const [basePrompt, strategyPrompt, ...restMessages] = messages as anyz[];
+
+            //     setInitPrompts([basePrompt, strategyPrompt])
+            // }
+
+        })();
+
 
     }, [])
 
@@ -84,9 +51,11 @@ export default () => {
 
     const playerKeys = players.map(({ playerKey }) => playerKey);
 
+
+    const basePrompt = '';
     return (
         <div>
-            <PromptHistoryModal playerKeys={playerKeys} initPrompts={initPrompts} />
+            <PromptHistoryModal playerKeys={playerKeys} basePrompt={basePrompt} messages={[]} />
         </div>
     )
 }

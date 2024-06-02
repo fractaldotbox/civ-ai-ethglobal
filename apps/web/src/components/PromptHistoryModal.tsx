@@ -4,7 +4,14 @@ import Image from 'next/image'
 import { asPlayerKey } from "@repo/engine"
 
 
-export const PromptCard = ({ title, promptMessage }: { title: string, promptMessage: string }) => {
+export const PromptCard = ({ title, promptMessage, response }: {
+    title: string, promptMessage: string, response?: {
+        action: any;
+        explanation: string;
+    }
+}) => {
+
+    const { action, explanation } = response || {};
     return (
 
         <div className="collapse collapse-arrow bg-base-200">
@@ -14,13 +21,26 @@ export const PromptCard = ({ title, promptMessage }: { title: string, promptMess
             </div>
             <div className="collapse-content">
                 <p> {promptMessage}</p>
+                <p> {promptMessage}</p>
+                {
+                    response && (
+                        <>
+                            <h2>Action</h2>
+                            {JSON.stringify(action)}
+                            <h2>Explanation</h2>
+                            {explanation}
+                        </>
+                    )
+                }
+
             </div>
+
         </div>
     )
 
 }
 
-export default ({ playerKeys, initPrompts }: { playerKeys: string[], initPrompts: string[] }) => {
+export default ({ playerKeys, basePrompt, messages }: { playerKeys: string[], basePrompt: string, messages: string[] }) => {
 
     const [tabIndex, setTabIndex] = useState(0)
 
@@ -42,11 +62,11 @@ export default ({ playerKeys, initPrompts }: { playerKeys: string[], initPrompts
                         }
                     </div>
                     <div className="w-full">
-                        <h3 className="font-bold text-xl py-2">Base Prompt</h3>
                         <div className="w-full flex justify-center flex-col">
+                            <PromptCard title="Base Prompt" promptMessage={basePrompt} />
                             <PromptCard title="test" promptMessage="abc" />
-                            <PromptCard title="test" promptMessage="abc" />
-                            <PromptCard title="test" promptMessage="abc" />
+                            <PromptCard title="First 5 Actions" promptMessage="abc" response={{ action: [], explanation: 'I do this' }} />
+
                         </div>
 
                     </div>

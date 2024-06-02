@@ -25,8 +25,10 @@ export const createGameState = async (gameSeed: any, turn: number) => {
 
   await Promise.all(
     _.range(0, turn * 3).map(async () => {
+      const snapshot = game.getSnapshot();
+      console.log('state', snapshot.value, snapshot.status);
       // await game.send({ type: 'DRAW' });
-      await game.send({ type: 'NEXT' });
+      return game.send({ type: 'NEXT' });
     }),
   );
 
