@@ -17,9 +17,11 @@ export const pruneGameState = (gameState: GameState) => {
 };
 
 export const createNextActionsPrompt = ({
+  playerKey,
   nextTurnCount,
   gameState,
 }: {
+  playerKey: string;
   nextTurnCount: number;
   gameState: GameState;
 }) => {
@@ -30,7 +32,7 @@ export const createNextActionsPrompt = ({
 
   console.log('prunedGameState', prunedGameState);
   return `
-This is turn ${turn}. Generate actions for next ${nextTurnCount} turns.
+This is turn ${turn}. You're player ${playerKey}. Generate actions for next ${nextTurnCount} turns.
 
 Give your reponse in json format where explanations is embeded in it {'actions':[ [ // action of turn 1 ], [ // action of turn 2]  ], 'explanations': 'My strategy is...' }
 
@@ -40,21 +42,23 @@ Current Game State:  ${JSON.stringify(prunedGameState)}
 };
 
 export const createCollabConfirmationPrompt = ({
-  collabPlayerKey,
+  playerKey,
+  playerKeys,
   gameState,
 }: {
-  collabPlayerKey: string;
+  playerKey: string;
+  playerKeys: string[];
   gameState: GameState;
 }) => {
   const { currentTurnMetadata } = gameState;
   const { turn } = currentTurnMetadata;
   return `
-This is turn ${turn}.
+This is turn ${turn}. You're player ${playerKey}
 
-You are assigned ${collabPlayerKey} and you can decide whether you will collaborate with that player on research or not.
+For each player of ${_.difference(playerKeys, [playerKey]).join(',')}, decide whether you will collaborate with that player on research or not.
 Recap both of you will spend 10 science, to research for project where results is split equally.
 
-Give your reponse in json format where explanations is embeded in it {'isCollaborate': true, 'explanations': 'My strategy is...' }
+Give your reponse in json format where explanations is embeded in it { results:['player-1',true, 'My strategy is...'], ['player-2',false, '...'],... }
 
 Current Game State:  ${JSON.stringify(gameState)}
 

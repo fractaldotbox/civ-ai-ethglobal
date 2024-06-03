@@ -6,6 +6,7 @@ import {
   getContract,
   http,
   WalletClient,
+  Account,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
@@ -218,16 +219,10 @@ export const getAgentPublicContract = (address: string): any => {
   return publicClient;
 };
 
-export const getAgentClient = (address: string): any => {
-  const gameMasterKey =
-    '0x3db76cdd104b07bebf2221076fab7485c03b59f5af25322497763a52b05bd94c';
-
-  // const gameMasterKey = process.env.NEXT_PUBLIC_GAME_MASTER_PRIVATE_KEY;
-
+export const getAgentClient = (address: string, account: Account): any => {
   const contractAddress =
     '0x8Cd43aaA0c30E9ED751A4e2F05101D0f4eC6cdC8' as address;
 
-  const account = privateKeyToAccount(gameMasterKey);
   const client: WalletClient = createWalletClient({
     account,
     ...config,
@@ -236,7 +231,7 @@ export const getAgentClient = (address: string): any => {
   const publicClient = getAgentPublicContract(contractAddress);
 
   return {
-    chat: async (prompt: string) => {
+    chat: async (prompt: string, waitTimeMs: number = 5000 * 10) => {
       const params = {
         address: contractAddress,
         functionName: 'runAgent',
@@ -246,6 +241,7 @@ export const getAgentClient = (address: string): any => {
         account,
       };
 
+      console.log('agent params', params);
       const { request, result: runId } =
         await publicClient.simulateContract(params);
 
@@ -261,11 +257,9 @@ export const getAgentClient = (address: string): any => {
 
       // wait long enough for oracle to respond
 
-      const timeout = 50 * 1000;
-
       console.log('runId', runId);
-      console.log('timeout', timeout);
-      await sleep(timeout);
+      console.log('timeout', waitTimeMs);
+      await sleep(waitTimeMs);
 
       const messages = await publicClient.readContract({
         address: contractAddress,

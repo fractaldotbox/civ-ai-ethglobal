@@ -7,3 +7,5 @@ export * from './src/domain/player';
 export * from './src/domain/log';
 
 export * from './src/domain/game-event';
+
+export * from './src/domain/region';

@@ -11,6 +11,7 @@ describe('prompt', () => {
 
     const gameState = game.getSnapshot().context;
     const result = createNextActionsPrompt({
+      playerKey: 'player-1',
       nextTurnCount: 5,
       gameState,
     });
@@ -22,7 +23,8 @@ describe('prompt', () => {
     const game = await createGameState(gameSeedFixture, 3);
     const gameState = game.getSnapshot().context;
     const prompt = createCollabConfirmationPrompt({
-      collabPlayerKey: 'player-2',
+      playerKey: 'player-1',
+      playerKeys: ['player-4', 'player-2', 'player-3'],
       gameState,
     });
 

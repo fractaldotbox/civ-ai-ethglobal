@@ -12,12 +12,14 @@ export enum ActionType {
   Research = 'research',
   Nuclear = 'nuclear',
   Noop = 'noop',
+  System = 'system',
 }
 
 export type Action = {
   i?: number;
   j?: number;
   payload: any;
+  playerName?: string;
   playerKey: string;
   type: ActionType;
   costByResourceType?: {
@@ -262,7 +264,7 @@ export const actionStrategyAsync = {
     console.log('playerKey, research', n);
 
     // TODO iterate start
-    const { results: primes } = await findNPrimes(n, n % 100);
+    const { results: primes } = await findNPrimes(n, n - ((n % 100) + 100));
 
     console.log('playerKey, research done', primes);
 
