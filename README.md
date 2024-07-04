@@ -97,12 +97,18 @@ To run this project locally, follow these steps:
 
 3. **Set up environment variables:**
    Create a `.env` file in the root directory based on the `env.template` file and add your API keys and necessary configuration:
+
    ```
 
    WEATHERXM_API_KEY=your_weatherxm_api_key
    OPENAI_API_KEY=your_openai_api_key
-   GALADRIEL_CONFIG=your_galadriel_configuration
+   NEXT_PUBLIC_AGENT1_PRIVATE_KEY=...
+   NEXT_PUBLIC_AGENT2_PRIVATE_KEY=...
+   ...
    ```
+Agents wallet keys is required to run locally
+
+
 
 ### Game
 

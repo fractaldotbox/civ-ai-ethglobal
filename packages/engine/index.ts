@@ -9,3 +9,5 @@ export * from './src/domain/log';
 export * from './src/domain/game-event';
 
 export * from './src/domain/region';
+
+export * from './src/domain/player-seed';

@@ -13,8 +13,6 @@ export default ({ event }: { event: GameEvent }) => {
                 <h3 className="font-bold text-xl pb-4">{title}</h3>
                 <div className="w-full flex justify-center">
                     {imageSrc && (
-
-
                         <Image
                             src={imageSrc}
                             width={700}

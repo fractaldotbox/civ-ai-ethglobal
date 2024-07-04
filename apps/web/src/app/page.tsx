@@ -4,6 +4,7 @@ import { Code } from "@repo/ui/code";
 import styles from "./page.module.css";
 import { Button } from "@repo/ui/button";
 import Chart from "../components/Chart";
+import { Player, PLAYER_SEEDS } from "@repo/engine";
 
 function Gradient({
   conic,
@@ -26,6 +27,34 @@ function Gradient({
         .join(" ")}
     />
   );
+}
+
+
+const PlayerCard = ({ player }: { player: Partial<Player> & { imageSrc: string } }) => {
+
+  return (
+    <div >
+      <div className="card bg-base-100 w-96 shadow-xl ">
+        <figure className="px-10 pt-10">
+          <img
+            src={player?.imageSrc}
+            alt="Player"
+            className="rounded-xl" />
+        </figure>
+        <div className="card-body items-center text-center">
+          <h2 className="card-title">{player.name}</h2>
+          <div className="form-control">
+            <label className="cursor-pointer label">
+              <input type="checkbox" defaultChecked className="checkbox checkbox-info" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+  )
 }
 
 const LINKS = [
@@ -86,17 +115,32 @@ export default function Page(): JSX.Element {
           </div>
           <Gradient className={styles.backgroundGradient} conic />
           <div className={styles.turborepoWordmarkContainer}>
-            CIV AI
+            <h2 className="text-4xl">
+              <Image
+                alt=""
+                height={614}
+                src="/title.png"
+                width={1024}
+              />
+            </h2>
           </div>
         </div>
       </div>
+
+      <div className="flex flex-row gap-6 m-4">
+        {
+          PLAYER_SEEDS.map((seed) => {
+            return <PlayerCard player={seed} />
+
+          })
+        }
+
+      </div>
+
       <Button appName="web" className={styles.button} >
-        start
+        start with players
       </Button>
 
-      <h1 className="text-3xl font-bold underline">
-        Choose players to start
-      </h1>
 
     </main >
   );

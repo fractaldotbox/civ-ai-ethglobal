@@ -42,6 +42,7 @@ import { GameEvent, STANDARD_GAME_EVENT_TEMPLATES } from './game-event';
 import { getWeather } from './weather';
 import { regionBoost } from './grid-action';
 import { createAgent, createDummyAgent } from './agent';
+import { PLAYER_SEEDS } from './player-seed';
 
 export type GameState = {
   logs: LogEvent[];
@@ -74,25 +75,6 @@ export type GameState = {
 };
 
 export const randomizeCollabParis = () => {};
-
-const PLAYER_SEEDS = [
-  {
-    name: 'Nuclear Gandhi',
-    address: '0x',
-  },
-  {
-    name: 'Civilized Zuckberg',
-    address: '0x',
-  },
-  {
-    name: 'Pacifist Vitalik',
-    address: '0x',
-  },
-  {
-    name: 'Ironman Musk',
-    address: '0x',
-  },
-];
 
 // model ownership of tiles at game for easier source of truth
 
