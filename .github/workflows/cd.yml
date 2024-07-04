@@ -1,0 +1,55 @@
+name: Continuous Deployment
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  NEXT_PUBLIC_AGENT1_PRIVATE_KEY: ${{ secrets.NEXT_PUBLIC_AGENT1_PRIVATE_KEY }}
+  NEXT_PUBLIC_AGENT2_PRIVATE_KEY: ${{ secrets.NEXT_PUBLIC_AGENT2_PRIVATE_KEY }}
+  NEXT_PUBLIC_AGENT3_PRIVATE_KEY: ${{ secrets.NEXT_PUBLIC_AGENT3_PRIVATE_KEY }}
+  NEXT_PUBLIC_AGENT4_PRIVATE_KEY: ${{ secrets.NEXT_PUBLIC_AGENT4_PRIVATE_KEY }}
+  WEATHERXM_API_KEY: ${{ secrets.WEATHERXM_API_KEY }}
+
+jobs:
+  build:
+    name: Build Page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      - name: copy package.json to public
+        run: cp package.json ./public
+      - name: Install dependencies
+        run: pnpm install
+      - name: Export
+        run: pnpm export
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
