@@ -108,7 +108,8 @@ To run this project locally, follow these steps:
    ```
 Agents wallet keys is required to run locally
 
-
+4. Ensure you fund wallets for gas
+- https://docs.galadriel.com/faucet
 
 ### Game
 
