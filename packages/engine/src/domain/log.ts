@@ -1,6 +1,5 @@
 import { Action, ActionType } from './action';
-
-import { LABEL_BY_TILE_RESOURCE, TileResource } from '@repo/engine';
+import { LABEL_BY_TILE_RESOURCE, TileResource } from './grid';
 
 export type LogEvent = {
   action: Action;
@@ -14,7 +13,11 @@ export const formatCost = (costByResourceType?: Record<string, number>) => {
   // TODO move to ui jsx render side
   const cost = Object.keys(costByResourceType)
     .map((type: string) => {
-      return LABEL_BY_TILE_RESOURCE[type] + '-' + costByResourceType[type];
+      return (
+        LABEL_BY_TILE_RESOURCE[type as TileResource] +
+        '-' +
+        costByResourceType[type]
+      );
     })
     .join(' ');
 

@@ -54,7 +54,7 @@ export const LABEL_BY_TILE_RESOURCE = {
   [TileResource.Science]: '🧪',
   [TileResource.Research]: '🔬',
   // [TileResource.Productivity]: '⚙️',
-};
+} as Record<TileResource, string>;
 
 export const encodedGrid = (grid: Grid) =>
   grid.flat().map((tile) => {
