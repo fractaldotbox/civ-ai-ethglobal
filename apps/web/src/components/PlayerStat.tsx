@@ -28,7 +28,7 @@ const ResourceScore = ({
 }
 
 export default (params: {
-    player: Player,
+    player: Partial<Player>,
     scoreByResourceByPlayerKey: any,
     scoreCurrentTurnByPlayerKey: any
 }) => {
@@ -42,6 +42,9 @@ export default (params: {
 
 
     const { playerIndex, playerKey, name } = player;
+    if (!playerKey) {
+        return <></>
+    }
 
     const playerClassName = "text-" + COLOR_CLASS_BY_PLAYER[playerKey] as string;
     // const playerColorClass = ["text", playerColor, "500"].join('-')

@@ -26,6 +26,7 @@ export default ({ event }: { event: GameEvent }) => {
                 <div className="modal-action">
                     <form method="dialog">
                         {/* if there is a button in form, it will close the modal */}
+                        {/* @ts-ignore */}
                         <Button onClick={() => document.getElementById('my_modal_3').close()}>OK</Button>
                     </form>
                 </div>

@@ -1,3 +1,4 @@
+/* global document */
 'use client';
 import _ from 'lodash';
 import { LABEL_BY_TILE_RESOURCE, TileResource } from "@repo/engine";
@@ -42,8 +43,10 @@ const PlayerBar = () => {
                 }
             </div>
             <div className="flex-end  justify-around flex flex-row items-center px-2">
-                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document.getElementById('modal_prompt').showModal()}>Prompts</button>
-                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document.getElementById('my_modal_1').showModal()}>Research</button>
+                {/* @ts-ignore */}
+                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document && document.getElementById('modal_prompt')!.showModal()}>Prompts</button>
+                {/* @ts-ignore */}
+                <button className="btn bg-blue-500 text-white mx-2" onClick={() => document && document.getElementById('my_modal_1')!.showModal()}>Research</button>
             </div>
         </div>
     )

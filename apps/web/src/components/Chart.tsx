@@ -80,7 +80,7 @@ export default () => {
     return (
         <div>
             <Plot
-                data={data}
+                data={data || []}
                 layout={{
                     title: "Chart",
 

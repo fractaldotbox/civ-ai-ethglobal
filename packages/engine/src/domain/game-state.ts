@@ -114,7 +114,7 @@ export const createPlayerMachine = (
           })),
 
           invoke: {
-            src: fromPromise(async ({ input, self }: any): any => {
+            src: fromPromise(async ({ input, self }: any) => {
               console.log('input', input);
               const agent = await createAgent(input.playerKey, input.address);
 
@@ -243,7 +243,8 @@ export const createPlayerMachine = (
     },
     {
       actions: {
-        startGame: assign(async ({ context, self }): any => {
+        // @ts-ignore
+        startGame: assign(async ({ context, self }) => {
           console.log('startGame');
 
           // TODO ensure async otherwise race conditions
@@ -274,7 +275,8 @@ export const createPlayerMachine = (
             data: {},
           };
         }),
-        planActions: assign(async ({ context }: any): any => {
+        // @ts-ignore
+        planActions: assign(async ({ context }: any) => {
           const { currentTurnMetadata } = context?.lastGameState;
           console.log('confirm');
 
@@ -284,6 +286,7 @@ export const createPlayerMachine = (
 
           // context
         }),
+        // @ts-ignore
         confirmCollab: sendParent(async ({ context }): any => {
           const results = await context.agent.confirmCollab(gameState);
           console.log('confirm');
@@ -321,13 +324,13 @@ const createSendToPlayer =
     });
   };
 
-const createByPlayerKey = (
+const createByPlayerKey = <T>(
   playerCount: number,
   defaultValueFactory = () => ({}),
-) => {
+): Record<string, T> => {
   return Object.fromEntries(
     Array.from({ length: playerCount }, (_, i) => {
-      return [asPlayerKey(i + 1), defaultValueFactory()];
+      return [asPlayerKey(i + 1), defaultValueFactory() as T];
     }),
   );
 };
@@ -348,7 +351,10 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         winner: null,
         logs: [],
         events: [],
-        collabByPlayerKey: createByPlayerKey(gameSeed.playerCount, () => []),
+        collabByPlayerKey: createByPlayerKey(
+          gameSeed.playerCount,
+          () => [],
+        ) as Record<string, [string, boolean, string][]>,
         currentTurnMetadata: {
           turn: 0,
           playerKey: '',
@@ -356,11 +362,11 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         agentRunsByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
           () => ({}),
-        ),
+        ) as Record<string, any[]>,
         researchCountByPlayerKey: createByPlayerKey(
           gameSeed.playerCount,
           () => 0,
-        ),
+        ) as Record<string, number>,
         primesByPlayerKey: createByPlayerKey(gameSeed.playerCount, () => []),
         // TODO metadata injected
         players: [] as Player[],
@@ -430,6 +436,7 @@ export const createGameMachine = (gameSeed: GameSeed) => {
         },
 
         playerAction: {
+          // @ts-ignore
           actions: assign(async ({ context, event, self }): any => {
             console.log('player trigger parent action', JSON.stringify(event));
             const {

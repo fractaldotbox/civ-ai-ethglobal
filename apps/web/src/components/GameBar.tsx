@@ -2,7 +2,6 @@ import React from "react";
 import { GameContextProvider, useGameContext } from "./GameContextProvider";
 import { mapLogAsMessage } from "@repo/engine";
 import Button from "./Button";
-import Prompt from "./Prompt";
 
 export default () => {
 

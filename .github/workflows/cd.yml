@@ -34,10 +34,11 @@ jobs:
           version: 8
       - name: copy package.json to public
         run: cp package.json ./public
+        working-directory: apps/web
       - name: Install dependencies
         run: pnpm install
       - name: Export
-        run: pnpm export
+        run: pnpm --filter web export 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

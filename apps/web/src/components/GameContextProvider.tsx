@@ -1,4 +1,4 @@
-import { GameState, REGIONS, TileResource, createGameMachine, generateRandomGrid } from '@repo/engine';
+import { GameSeed, GameState, REGIONS, TileResource, createGameMachine, generateRandomGrid } from '@repo/engine';
 import React, { createContext, useEffect, useState } from 'react';
 import { createActor } from 'xstate';
 import _ from 'lodash';
@@ -43,14 +43,14 @@ export const GameContextProvider = ({ children }: { children: React.ReactNode })
     }
     // force create once
     const gameMachine = React.useMemo(() => {
-        return createGameMachine(gameSeed)
+        return createGameMachine(gameSeed as GameSeed)
     }, []);
 
     const [lastEventIndex, setLastEventIndex] = useState(-1);
     const [autoPlay, setAutoPlay] = React.useState<NodeJS.Timeout | undefined>();
 
 
-    const toggleAutoPlay = (fn?: () => any) => {
+    const toggleAutoPlay = (fn?: (x?: any) => any) => {
         if (fn) {
             setAutoPlay(setInterval(() => {
                 fn();

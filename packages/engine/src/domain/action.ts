@@ -40,18 +40,12 @@ export const findTile = (
   const rows = grid.length;
   const cols = grid[0]!.length;
 
-  const di = [-1, 0, 1, 0];
-  const dj = [0, 1, 0, -1];
-
-  const visited = Array(rows)
-    .fill(0)
-    .map(() => Array(cols).fill(false)) as boolean[][];
-
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      if (predicate(grid[i]![j])) {
+      const tile = grid[i]![j] as Tile;
+      if (predicate(tile)) {
         return {
-          ...grid[i]![j],
+          ...tile,
           i,
           j,
         };
@@ -62,10 +56,10 @@ export const findTile = (
 
 export const findAdjacentEmptyTile = (
   grid: Grid,
-  predicateStart: (tile: Tile) => boolean,
+  predicateStart: (tile?: Tile) => boolean,
 ) => {
-  const predicate = (tile: Tile) => {
-    return !tile.owner;
+  const predicate = (tile?: Tile) => {
+    return !tile?.owner;
   };
 
   return findAdjacentTile(grid, predicateStart, predicate);
@@ -74,8 +68,8 @@ export const findAdjacentEmptyTile = (
 // set hard rules only, leave ai for search optimization
 export const findAdjacentTile = (
   grid: Grid,
-  predicateStart: (x: Tile) => boolean,
-  predicate: (x: Tile) => boolean,
+  predicateStart: (x?: Tile) => boolean,
+  predicate: (x?: Tile) => boolean,
 ) => {
   // itereate from the edge of grid and stop at first non empty, then BFS
   const rows = grid.length;
@@ -152,10 +146,6 @@ export const createNuclearAction = (
   playerKey: string,
   oppnentPlayerKey: string,
 ): Action => {
-  // const tile = findAdjacentEmptyTile(grid, (tile) => tile.owner === playerKey);
-
-  // TODO find oppnent tile
-
   const tile = findPlayerTile(grid, oppnentPlayerKey);
 
   if (!tile) {
@@ -182,11 +172,15 @@ export const createNuclearAction = (
   };
 };
 export const createBuildAction = (grid: Grid, playerKey: string): Action => {
-  const tile = findAdjacentEmptyTile(grid, (tile) => tile.owner === playerKey);
+  const tile = findAdjacentEmptyTile(grid, (tile) => tile?.owner === playerKey);
 
   if (!tile) {
     console.log('createBuildAction missing tile');
-    return;
+    return {
+      type: ActionType.Noop,
+      playerKey,
+      payload: {},
+    };
   }
   const { i, j } = tile;
   return {
@@ -229,22 +223,22 @@ export const createResearchAction = (
 };
 
 export const actionStrategySync = {
-  [ActionType.Build]: (grid: Grid, action?: Action) => {
+  [ActionType.Build]: (grid: Grid, action: Action) => {
     const { i, j, payload } = action;
-    grid[i]![j] = {
+    grid[i!]![j!] = {
       i,
       j,
-      ...grid[i]![j],
+      ...grid[i!]![j!],
       ...payload,
     };
     return grid;
   },
-  [ActionType.Nuclear]: (grid: Grid, action?: Action) => {
+  [ActionType.Nuclear]: (grid: Grid, action: Action) => {
     const { i, j, payload } = action;
-    grid[i]![j] = {
+    grid[i!]![j!] = {
       i,
       j,
-      ...grid[i]![j],
+      ...grid[i!]![j!],
       ...payload,
     };
     return grid;

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next export",
     "test": "vitest",
     "start": "next start",
     "lint": "eslint . --max-warnings 0"
@@ -12,6 +13,7 @@
   "dependencies": {
     "@repo/engine": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@types/lodash": "4.17.4",
     "@wagmi/core": "^2.10.5",
     "@xstate/react": "^4.1.1",
     "autoprefixer": "^10.4.19",

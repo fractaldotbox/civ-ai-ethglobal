@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'vitest';
-import { Grid, Tile, TileBuilding, generateEmptyGrid } from './grid';
+import {
+  Grid,
+  Tile,
+  TileBuilding,
+  TileResource,
+  generateEmptyGrid,
+} from './grid';
 import {
   applySyncAction,
   createBuildAction,
@@ -10,10 +16,10 @@ import { asPlayerIndex, asPlayerKey } from './player';
 
 describe('Grid', () => {
   const defaultTile = {
-    resourceByType: {},
+    resourceByType: {} as Record<TileResource, any>,
   };
 
-  const predicateStart = (tile: Tile) => tile.owner === 'player-1';
+  const predicateStart = (tile: Tile) => tile?.owner === 'player-1';
 
   test('#findAdjacentEmptyTile middle', (done: any) => {
     let grid = generateEmptyGrid(5, 5);

@@ -6,7 +6,7 @@ export type Tile = {
   j: number;
   building?: TileBuilding;
   owner?: string;
-  resourceByType: Record<TileResource, number> | {};
+  resourceByType: Record<TileResource, number>;
 };
 
 export type Grid = Tile[][];

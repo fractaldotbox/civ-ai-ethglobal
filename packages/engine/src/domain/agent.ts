@@ -26,8 +26,11 @@ export const createDummyAgent = (playerKey: string) => {
     deriveSyncActions: (gameState: GameState) => {
       console.log('dummy ai send', playerKey);
 
-      const { grid, scoreByResourceByPlayerKey, researchCountByPlayerKey } =
-        gameState;
+      const {
+        grid,
+        scoreByResourceByPlayerKey,
+        researchCountByPlayerKey = {},
+      } = gameState;
 
       const scoreByResource = scoreByResourceByPlayerKey?.[playerKey];
       // const energy = scoreByResource[TileResource.Energy];
@@ -37,7 +40,7 @@ export const createDummyAgent = (playerKey: string) => {
         researchCountByPlayerKey?.[playerKey],
       );
 
-      const isUnlocked = researchCountByPlayerKey?.[playerKey] >= 2;
+      const isUnlocked = (researchCountByPlayerKey || {})[playerKey]! >= 2;
 
       const isNuclear = isUnlocked && Math.random() > 0.5;
 
@@ -64,7 +67,7 @@ export const masterKeyByPlayerKey = {
 } as Record<string, `0x${string}`>;
 
 export const createAgent = async (playerKey: string, address: string) => {
-  const account = privateKeyToAccount(masterKeyByPlayerKey[playerKey]);
+  const account = privateKeyToAccount(masterKeyByPlayerKey[playerKey]!);
 
   const client = await getAgentClient(address, account);
 

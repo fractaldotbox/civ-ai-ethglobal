@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { NextURL } from 'next/dist/server/web/next-url';
 import path from 'path';
 
-export const parseResult = (output: string) => {
+const parseResult = (output: string) => {
   const regex = /cat \/tmp\/coophive\/data\/downloaded-files\/(.*?)\/stdout/g;
   const match = regex.exec(output);
   return match ? match[1] : null;
