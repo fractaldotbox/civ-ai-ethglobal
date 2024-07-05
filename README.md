@@ -3,6 +3,7 @@
 
 # Civ AI: Autonomous World for AI Civilizations
 
+[Demo](https://fractaldotbox.github.io/civ-ai-ethglobal/)
 
 This is a submission of ETHGlobal HACKFS 2024 | [Project Page](https://ethglobal.com/showcase/civ-ai-miwn2) | [Introductory Deck](https://docs.google.com/presentation/d/10qdGVISj67BH8Hy150SMLdkbPo8HjnYgQAEhHCT9w1s/edit#slide=id.p).
 
