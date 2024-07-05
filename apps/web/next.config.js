@@ -9,6 +9,7 @@ module.exports = {
     // until fix xstate types
     ignoreBuildErrors: true,
   },
+  output: 'export',
   reactStrictMode: false,
   transpilePackages: ["@repo/ui"],
 };
